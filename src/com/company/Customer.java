@@ -1,9 +1,12 @@
 package com.company;
 
-public class Customer {
-    String name;
-    int customerId;
-    long contactNumber;
+import java.io.Serializable;
+
+public class Customer implements Serializable {
+    private String name;
+    private int customerId;
+    private long contactNumber;
+
 
     public Customer(String name, int customerId, long contactNumber) {
         this.name = name;

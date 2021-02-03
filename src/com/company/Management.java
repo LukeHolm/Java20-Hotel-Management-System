@@ -11,21 +11,21 @@ public class Management {
         String firstName = USER_INTERFACE.enterValue("customer first name");
         String lastName = USER_INTERFACE.enterValue("customer last name");
         String fullName = firstName + " " + lastName;
-        int contactNumber = USER_INTERFACE.enterContactNumber("customer contact number");
-
-        //Customer customer = new Customer(fullName, customerId, contactNumber); kanske behöver objektet sen?
+        String contactNumber = USER_INTERFACE.enterValue("customer contact number");
 
         PreparedStatement statement = sqlStatement.getConnection().prepareStatement("INSERT INTO customer(Customer_name, contact_number)\n" +
                 "VALUES( ? , ? );");
         statement.setString(1, fullName);
-        statement.setInt(2, contactNumber);
+        statement.setString(2, contactNumber);
 
         statement.executeUpdate();
+
+        //Customer customer = new Customer(fullName, customerId, contactNumber); kanske behöver objektet sen?
     }
 
     public void searchCustomer() throws SQLException {
         sqlStatement = Run.getSqlStatement();
-        int customerId = USER_INTERFACE.enterContactNumber("customer ID");
+        int customerId = USER_INTERFACE.enterInteger("customer ID");
 
         PreparedStatement statement = sqlStatement.getConnection().prepareStatement("SELECT * FROM CUSTOMER WHERE ID = ? ");
         statement.setInt(1, customerId);
@@ -37,12 +37,39 @@ public class Management {
         listAllFromTable();
     }
 
-    public void manageCustomer() {
+    public void manageCustomer() throws SQLException {
+        sqlStatement = Run.getSqlStatement();
+        int customerId = USER_INTERFACE.enterInteger("customer ID");
 
+        PreparedStatement statement = sqlStatement.getConnection().prepareStatement("DELETE FROM customer WHERE id = ?");
+        statement.setInt(1, customerId);
+
+        statement.executeUpdate();
+
+        System.out.println("Customer with Id :" + customerId + " deleted." );
+        System.out.println();
     }
 
-    public void foodOrder() {
+    public void foodOrder() throws SQLException {
+        sqlStatement = Run.getSqlStatement();
+        System.out.println("Please choose something from the menu");
+        System.out.println();
+        int foodChoice = USER_INTERFACE.foodChoice();
 
+        int customerID = USER_INTERFACE.enterInteger("customer id");
+
+
+        PreparedStatement statement = sqlStatement.getConnection().prepareStatement("INSERT INTO foodOrder (food_Id, customer_id)\n" +
+                "VALUES ( ?, ? )");
+        statement.setInt(1, foodChoice);
+        statement.setInt(2,customerID);
+
+        statement.executeUpdate();
+
+        ResultClass.setFoodResult(sqlStatement,"customerFoodOrder", customerID);
+        System.out.println("Total food orders for custmer:");
+        listAllFromTable();
+        System.out.println();
     }
 
     public void checkOutWithBill() {
@@ -65,6 +92,9 @@ public class Management {
 
     }
 
+    public void checkOut() {
+
+    }
     public void listAllFromTable() throws SQLException {
         ResultSet result = ResultClass.getResult();
 

@@ -16,13 +16,16 @@ public class Run {
     private static Connection connection;
 
     public void Program() throws SQLException {
-        connection = DriverManager.getConnection(url, user, "SuperSecretPassword");
+        //region password
+        connection = DriverManager.getConnection(url, user, "Jole0257!");
+        //endregion
         try {
             createSqlStatement();
             while (!exitProgram) {
             int selection = USER_INTERFACE.adminOrCustomerChoice();
             adminOrCustomer(selection);
         }
+            System.out.println("Thanks and bye!");
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -33,14 +36,16 @@ public class Run {
     public void adminOrCustomer(int selection) throws SQLException {
         switch (selection) {
             case 1 -> {
+                exitLoop = false;
                 while (!exitLoop) {
                     selection = USER_INTERFACE.adminChoice();
                     adminView(selection);
                 }
             }
             case 2 -> {
+                exitLoop = false;
                 while (!exitLoop) {
-                    USER_INTERFACE.customerChoice();
+                    selection = USER_INTERFACE.customerChoice();
                     customerView(selection);
                 }
             }
@@ -53,8 +58,9 @@ public class Run {
             case 1 -> MANAGEMENT.newCustomer();
             case 2 -> MANAGEMENT.searchCustomer();
             case 3 -> MANAGEMENT.manageCustomer();
-            case 4 -> MANAGEMENT.foodOrder();
-            case 5 -> MANAGEMENT.checkOutWithBill();
+            case 4 -> MANAGEMENT.bookRoom();
+            case 5 -> MANAGEMENT.foodOrder();
+            case 6 -> MANAGEMENT.checkOutWithBill();
             case 0 -> exitLoop = true;
         }
     }
@@ -65,7 +71,8 @@ public class Run {
             case 2 -> MANAGEMENT.roomAvailability();
             case 3 -> MANAGEMENT.bookRoom();
             case 4 -> MANAGEMENT.orderFood();
-            case 5 -> exitLoop = true;
+            case 5 -> MANAGEMENT.checkOut();
+            case 0 -> exitLoop = true;
         }
     }
 
