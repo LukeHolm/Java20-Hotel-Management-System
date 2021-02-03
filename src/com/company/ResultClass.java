@@ -19,4 +19,8 @@ public class ResultClass {
         result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE id = " + ID + ";");
     }
 
+    public static void setBookedRoomResult(Statement sqlStatement, String tableName, int ID) throws SQLException {
+        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE customer_ID = " + ID + ";");
+    }
+
 }

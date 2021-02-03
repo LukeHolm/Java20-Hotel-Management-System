@@ -41,10 +41,19 @@ public class UserInterface {
         System.out.println("2. Deluxe breakfast box - 110KR");
         System.out.println("3. The yummiest soup - 110kr");
         System.out.println("4. Falafel roll with pickled vegetables 125KR");
-        System.out.println("5. Checkout");
         System.out.println("0. Exit");
 
-        return userInput.getIntFromUser(0,5);
+        return userInput.getIntFromUser(0,4);
+    }
+
+    public int roomChoice() {
+        System.out.println("1. Twin bed room - 800KR/night");
+        System.out.println("2. Single bed room - 550KR/night");
+        System.out.println("3. Budget twin bed room - 600KR/night");
+        System.out.println("4. Budget single bed room - 450KR/night");
+        System.out.println("0. Exit");
+
+        return userInput.getIntFromUser(0,4);
     }
 
     public String enterValue(String value) {

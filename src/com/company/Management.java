@@ -84,7 +84,29 @@ public class Management {
 
     }
 
-    public void bookRoom() {
+    public void bookRoom() throws SQLException {
+        sqlStatement = Run.getSqlStatement();
+
+        int roomChoice = USER_INTERFACE.roomChoice();
+
+        int customerID = USER_INTERFACE.enterInteger("customer id");
+
+        PreparedStatement statement = sqlStatement.getConnection().prepareStatement("INSERT INTO roombooking (roomnumber, customer_id, checkindate, roomavailable)\n" +
+                "VALUES ( ? , ? , CURRENT_TIMESTAMP, false)");
+        statement.setInt(1, roomChoice);
+        statement.setInt(2,customerID);
+
+        statement.executeUpdate();
+
+        statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking SET checkOutDate = DATE_ADD(checkindate,INTERVAL 5 DAY) WHERE customer_id = " + customerID + ";");
+        statement.executeUpdate();
+
+        System.out.println("The room is now booked!:");
+
+        ResultClass.setBookedRoomResult(sqlStatement, "bookedroom",customerID);
+
+        listAllFromTable();
+        System.out.println();
 
     }
 
