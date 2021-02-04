@@ -37,24 +37,29 @@ public class UserInterface {
     }
 
     public int foodChoice() {
-        System.out.println("1. Avocado & spiced hummus sandwich - 65KR");
-        System.out.println("2. Deluxe breakfast box - 110KR");
-        System.out.println("3. The yummiest soup - 110kr");
-        System.out.println("4. Falafel roll with pickled vegetables 125KR");
-        System.out.println("0. Exit");
+        food.listOfFood().forEach(System.out::println);
+        System.out.println("0. Go back");
 
         return userInput.getIntFromUser(0,4);
     }
 
     public int roomChoice() {
-        System.out.println("1. Twin bed room - 800KR/night");
-        System.out.println("2. Single bed room - 550KR/night");
-        System.out.println("3. Budget twin bed room - 600KR/night");
-        System.out.println("4. Budget single bed room - 450KR/night");
+        System.out.println("1. Twin bed room");
+        System.out.println("2. Single bed room");
+        System.out.println("3. Deluxe twin bed room");
+        System.out.println("4. Deluxe single bed room");
         System.out.println("0. Exit");
 
         return userInput.getIntFromUser(0,4);
     }
+
+    public boolean confirm() {
+        System.out.println("Would you like to book this room? (Y/N)");
+        String ans = userInput.getStringFromUser();
+
+        return ans.equalsIgnoreCase("y");
+    }
+
 
     public String enterValue(String value) {
         System.out.println("Please enter " + value);

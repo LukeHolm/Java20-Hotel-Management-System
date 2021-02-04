@@ -1,5 +1,6 @@
 package com.company;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,9 +17,9 @@ public class Run {
     private static Connection connection;
 
     public void Program() throws SQLException {
-        //region password
+        //#region Database password
         connection = DriverManager.getConnection(url, user, "Jole0257!");
-        //endregion
+        //#endregion
         try {
             createSqlStatement();
             while (!exitProgram) {
@@ -33,7 +34,7 @@ public class Run {
         }
     }
 
-    public void adminOrCustomer(int selection) throws SQLException {
+    public void adminOrCustomer(int selection) throws SQLException, IOException, ClassNotFoundException {
         switch (selection) {
             case 1 -> {
                 exitLoop = false;
@@ -53,7 +54,7 @@ public class Run {
         }
     }
 
-    public void adminView(int selection) throws SQLException {
+    public void adminView(int selection) throws SQLException, IOException, ClassNotFoundException {
         switch (selection) {
             case 1 -> MANAGEMENT.newCustomer();
             case 2 -> MANAGEMENT.searchCustomer();
@@ -65,12 +66,12 @@ public class Run {
         }
     }
 
-    public void customerView(int selection) throws SQLException {
+    public void customerView(int selection) throws SQLException, IOException, ClassNotFoundException {
         switch (selection) {
-            case 1 -> MANAGEMENT.roomInfo();
+            case 1 -> MANAGEMENT.roomDetails();
             case 2 -> MANAGEMENT.roomAvailability();
             case 3 -> MANAGEMENT.bookRoom();
-            case 4 -> MANAGEMENT.orderFood();
+            case 4 -> MANAGEMENT.foodOrder();
             case 5 -> MANAGEMENT.checkOut();
             case 0 -> exitLoop = true;
         }
