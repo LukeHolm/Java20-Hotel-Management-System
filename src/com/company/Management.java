@@ -1,6 +1,7 @@
 package com.company;
 
 import java.sql.*;
+import java.util.List;
 
 public class Management {
     private static final UserInterface USER_INTERFACE = new UserInterface();
@@ -56,15 +57,15 @@ public class Management {
         System.out.println();
         int foodChoice = USER_INTERFACE.foodChoice();
 
-        int customerID = USER_INTERFACE.enterInteger("customer id");
+        if (!(foodChoice == 0)) {
+            int customerID = USER_INTERFACE.enterInteger("customer id");
 
+            PreparedStatement statement = sqlStatement.getConnection().prepareStatement("INSERT INTO foodOrder (food_Id, customer_id)\n" +
+                    "VALUES ( ?, ? )");
+            statement.setInt(1, foodChoice);
+            statement.setInt(2, customerID);
 
-        PreparedStatement statement = sqlStatement.getConnection().prepareStatement("INSERT INTO foodOrder (food_Id, customer_id)\n" +
-                "VALUES ( ?, ? )");
-        statement.setInt(1, foodChoice);
-        statement.setInt(2,customerID);
-
-        statement.executeUpdate();
+            statement.executeUpdate();
 
             ResultClass.setFoodResult(sqlStatement, "foodorder", customerID);
             System.out.println("Total food orders for customer:");
