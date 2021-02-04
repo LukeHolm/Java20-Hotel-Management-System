@@ -16,9 +16,9 @@ public class Run {
     private static Connection connection;
 
     public void Program() throws SQLException {
-        //region password
-        connection = DriverManager.getConnection(url, user, "Jole0257!");
-        //endregion
+        //#region Database password
+        connection = DriverManager.getConnection(url, user, "Flowright_0525");
+        //#endregion
         try {
             createSqlStatement();
             while (!exitProgram) {

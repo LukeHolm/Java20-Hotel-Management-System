@@ -66,17 +66,34 @@ public class Management {
 
         statement.executeUpdate();
 
-        ResultClass.setFoodResult(sqlStatement,"customerFoodOrder", customerID);
-        System.out.println("Total food orders for custmer:");
-        listAllFromTable();
-        System.out.println();
+            ResultClass.setFoodResult(sqlStatement, "foodorder", customerID);
+            System.out.println("Total food orders for customer:");
+            List<Integer> customerFoodOrder = ResultClass.getCustomerFoodOrders(sqlStatement,customerID);
+//            listAllFromTable();
+            customerFoodOrder.forEach(System.out::println);
+            System.out.println();
+        }
     }
 
     public void checkOutWithBill() {
 
+        //har beställt 1, 2, 2
+        // bill
+        //if 1 bill += 60
+        //if 2 bill += 110
+
     }
 
-    public void roomInfo() {
+    public void roomInfo() throws SQLException {
+        sqlStatement = Run.getSqlStatement();
+        System.out.println("Please choose a room type\n");
+        int roomChoice = USER_INTERFACE.roomChoice();
+
+        ResultClass.setRoomResult(sqlStatement,"room", roomChoice);
+        System.out.println("Room Description:");
+        listAllFromTable();
+        System.out.println();
+
 
     }
 
@@ -117,6 +134,7 @@ public class Management {
     public void checkOut() {
 
     }
+
     public void listAllFromTable() throws SQLException {
         ResultSet result = ResultClass.getResult();
 
