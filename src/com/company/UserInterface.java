@@ -1,5 +1,7 @@
 package com.company;
 
+import java.io.IOException;
+
 public class UserInterface {
     private UserInputHandler userInput = new UserInputHandler();
 
@@ -36,8 +38,8 @@ public class UserInterface {
         return userInput.getIntFromUser(0,5);
     }
 
-    public int foodChoice() {
-        food.listOfFood().forEach(System.out::println);
+    public int foodChoice() throws IOException {
+        Food.listOfFood().forEach(System.out::println);
         System.out.println("0. Go back");
 
         return userInput.getIntFromUser(0,4);

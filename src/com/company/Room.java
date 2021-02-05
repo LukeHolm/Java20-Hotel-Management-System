@@ -28,7 +28,7 @@ public class Room implements Serializable {
 //        roomNumber++;                         //TODO: NÄr vi vill ha fler än 4 rum
     }
 
-    public static void roomsToFile() throws IOException {
+    public static List<Room> rooms() throws IOException {
         Room standardSingle = new Room(1, "Standard single",
                 "This is standard single bedroom with a single bed,\n" +
                         "filled with all of your necessities and your own private bathroom",
@@ -55,7 +55,9 @@ public class Room implements Serializable {
         rooms.add(deluxeSingle);
         rooms.add(deluxeDouble);
 
-        HotelData.writeToFile(rooms, "Rooms.txt");
+        DataHandler.writeToFile(rooms, "Rooms.txt");
+
+        return rooms;
     }
 
     @Override

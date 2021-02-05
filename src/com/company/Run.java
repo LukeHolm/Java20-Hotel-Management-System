@@ -71,8 +71,8 @@ public class Run {
             case 1 -> MANAGEMENT.roomDetails();
             case 2 -> MANAGEMENT.roomAvailability();
             case 3 -> MANAGEMENT.bookRoom();
-            case 4 -> MANAGEMENT.foodOrder();
-            case 5 -> MANAGEMENT.checkOut();
+            case 4 -> MANAGEMENT.foodOrder2();
+            case 5 -> MANAGEMENT.checkOutWithBill();
             case 0 -> exitLoop = true;
         }
     }

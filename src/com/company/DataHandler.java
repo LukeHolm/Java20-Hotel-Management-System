@@ -3,12 +3,14 @@ package com.company;
 import java.io.*;
 import java.util.List;
 
-public class HotelData {
+public class DataHandler {
 
     public static <T> void writeToFile(T object, String fileLocation) throws IOException {
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(fileLocation));
 
         objectOutputStream.writeObject(object);
+
+        objectOutputStream.close();
     }
 
     public static List readFromFile(String fileLocation) throws IOException, ClassNotFoundException {

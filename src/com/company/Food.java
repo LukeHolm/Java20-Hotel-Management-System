@@ -1,28 +1,28 @@
 package com.company;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class food implements Serializable {
-
+public class Food implements Serializable{
     int id;
     String meal;
     int price;
 
-    public food(int id, String meal, int price) {
+    public Food(int id, String meal, int price) {
         this.id = id;
         this.meal = meal;
         this.price = price;
     }
 
-    public static List<food> listOfFood() {
-        food avocadoToast = new food(1, "Avocado & spiced hummus sandwich", 60);
-        food breakfastBox = new food(2, "Deluxe breakfast box", 110);
-        food soup = new food(3, "The yummiest soup", 110);
-        food falafel = new food(4, "Falafel roll with pickled vegetables", 125);
+    public static List<Food> listOfFood() {
+        Food avocadoToast = new Food(1, "Avocado & spiced hummus sandwich", 60);
+        Food breakfastBox = new Food(2, "Deluxe breakfast box", 110);
+        Food soup = new Food(3, "The yummiest soup", 110);
+        Food falafel = new Food(4, "Falafel roll with pickled vegetables", 125);
 
-        List<food> listOfFood = new ArrayList<>();
+        List<Food> listOfFood = new ArrayList<>();
         listOfFood.add(avocadoToast);
         listOfFood.add(breakfastBox);
         listOfFood.add(soup);

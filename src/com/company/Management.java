@@ -7,10 +7,13 @@ import java.util.List;
 
 public class Management implements Serializable {
     private static final UserInterface USER_INTERFACE = new UserInterface();
+    private static final String FOOD_ORDERS = "_bill.txt";
+    private static final String ROOM_COST = "_room_cost.txt";
     private static Statement sqlStatement;
-    static final String filename = "_bill.txt";
+    private static long totalFoodOrder;
+    private static long totalPriceForRoom;
 
-    public void newCustomer() throws SQLException, IOException, ClassNotFoundException {
+    public void newCustomer() throws SQLException, IOException {
         sqlStatement = Run.getSqlStatement();
         String firstName = USER_INTERFACE.enterValue("customer first name");
         String lastName = USER_INTERFACE.enterValue("customer last name");
@@ -26,9 +29,13 @@ public class Management implements Serializable {
 
         int customerID = ResultClass.getCustomerId(sqlStatement, fullName);
 
-        List<Integer> customerBill = new ArrayList<>();
+        List<Object> foodOrders = new ArrayList<>();
 
-        HotelData.writeToFile(customerBill, customerID + filename);
+        DataHandler.writeToFile(foodOrders, customerID + FOOD_ORDERS);
+
+        List<Object> roomCost = new ArrayList<>();
+
+        DataHandler.writeToFile(roomCost, customerID + ROOM_COST);
     }
 
     public void searchCustomer() throws SQLException {
@@ -58,8 +65,51 @@ public class Management implements Serializable {
         System.out.println();
     }
 
-    public void foodOrder() {
+    public void foodOrder() throws IOException {
 
+//        System.out.println("Please choose something from the menu");
+//        System.out.println();
+//        int foodChoice = USER_INTERFACE.foodChoice();
+//
+//        if (!(foodChoice == 0)) {
+//            int customerID = USER_INTERFACE.enterInteger("customer id");
+//
+//            try {
+//                FileInputStream existingBill = new FileInputStream(customerID + FILENAME);
+//                ObjectInputStream readExistingBill = new ObjectInputStream(existingBill);
+//                List<Food> foodOrder = (List<Food>) readExistingBill.readObject();
+//
+//                switch (foodChoice) {
+//                    case 1 -> foodOrder.add(Food.listOfFood().get(0));
+//                    case 2 -> foodOrder.add(Food.listOfFood().get(1));
+//                    case 3 -> foodOrder.add(Food.listOfFood().get(2));
+//                    case 4 -> foodOrder.add(Food.listOfFood().get(3));
+//                }
+//
+//                FileOutputStream fos = new FileOutputStream(customerID + FILENAME);
+//                ObjectOutputStream oos = new ObjectOutputStream(fos);
+//
+//                oos.writeObject(foodOrder);
+//                oos.close();
+//                readExistingBill.close();
+//
+//                FileInputStream fis = new FileInputStream(customerID + FILENAME);
+//                ObjectInputStream ois = new ObjectInputStream(fis);
+//                List<Food> foodOrders = (List<Food>) ois.readObject();
+//                System.out.println("Order History:");
+//                for (Food n : foodOrders) {
+//                    System.out.println(n);
+//                }
+//                System.out.println();
+//                ois.close();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+
+    }
+
+    public void foodOrder2() throws IOException, ClassNotFoundException {
 
         System.out.println("Please choose something from the menu");
         System.out.println();
@@ -68,46 +118,29 @@ public class Management implements Serializable {
         if (!(foodChoice == 0)) {
             int customerID = USER_INTERFACE.enterInteger("customer id");
 
-            try {
-                FileInputStream existingBill = new FileInputStream(customerID+filename);
-                ObjectInputStream readExistingBill = new ObjectInputStream(existingBill);
-                List<food> foodOrder = (List<food>) readExistingBill.readObject();
+            List<Food> foodOrder = DataHandler.readFromFile(customerID + FOOD_ORDERS);
 
+            foodOrder.add(Food.listOfFood().get(foodChoice - 1));
 
-                switch (foodChoice) {
-                    case 1 -> foodOrder.add(food.listOfFood().get(0));
-                    case 2 -> foodOrder.add(food.listOfFood().get(1));
-                    case 3 -> foodOrder.add(food.listOfFood().get(2));
-                    case 4 -> foodOrder.add(food.listOfFood().get(3));
-                }
-
-                FileOutputStream fos = new FileOutputStream(customerID+filename);
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-                oos.writeObject(foodOrder);
-                oos.close();
-                readExistingBill.close();
-
-                FileInputStream fis = new FileInputStream(customerID+filename);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                List<food> foodOrders = (List<food>) ois.readObject();
-                System.out.println("Order History:");
-                for (food n : foodOrders) {
-                    System.out.println(n);
-                }
-                System.out.println();
-                ois.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            DataHandler.writeToFile(foodOrder, customerID + FOOD_ORDERS);
+            foodOrder = DataHandler.readFromFile(customerID + FOOD_ORDERS);
+            System.out.println();
+            System.out.println("Order History:");
+            foodOrder.stream().map(s -> s.meal).forEach(System.out::println);
+            System.out.println();
+            System.out.println("Total ammount:");
+            totalFoodOrder = foodOrder.stream()
+                    .mapToInt(s -> s.price).summaryStatistics().getSum();
+            System.out.println(totalFoodOrder + " SEK");
+            System.out.println();
         }
-
     }
 
     public void checkOutWithBill() {
+        System.out.println("Thanks for visiting us, welcome back!");
 
-
-
+        System.out.println("Total price to pay:");
+        System.out.println(totalFoodOrder + totalPriceForRoom);
     }
 
     public int roomDetails() throws IOException, ClassNotFoundException {
@@ -115,7 +148,7 @@ public class Management implements Serializable {
 
         int roomChoice = USER_INTERFACE.roomChoice();
 
-        List<Room> rooms = HotelData.readFromFile("Rooms.txt");
+        List<Room> rooms = DataHandler.readFromFile("Rooms.txt");
         System.out.println();
         rooms.stream().filter(s -> s.typeOfRoom == roomChoice)
                 .map(s -> s.roomName).forEach(System.out::println);
@@ -157,13 +190,20 @@ public class Management implements Serializable {
 
             statement.executeUpdate();
 
-
             System.out.println("The room is now booked!:");
 
             ResultClass.setBookedRoomResult(sqlStatement, "bookedroom", customerID);
 
             listAllFromTable();
             System.out.println();
+
+            List<Room> roomCost = DataHandler.readFromFile(customerID + ROOM_COST);
+            roomCost.add(Room.rooms().get(roomChoice - 1));
+
+            DataHandler.writeToFile(roomCost, customerID + ROOM_COST);
+            roomCost = DataHandler.readFromFile(customerID + ROOM_COST);
+            totalPriceForRoom = (roomCost.stream()
+                    .mapToInt(s -> s.price).summaryStatistics().getSum() * numberOfNights);
         }
     }
 
