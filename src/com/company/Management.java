@@ -1,14 +1,16 @@
 package com.company;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Management {
     private static final UserInterface USER_INTERFACE = new UserInterface();
     private static Statement sqlStatement;
 
-    public void newCustomer() throws SQLException {
+    public void newCustomer() throws SQLException, IOException, ClassNotFoundException {
         sqlStatement = Run.getSqlStatement();
         String firstName = USER_INTERFACE.enterValue("customer first name");
         String lastName = USER_INTERFACE.enterValue("customer last name");
@@ -22,13 +24,11 @@ public class Management {
 
         statement.executeUpdate();
 
-//        try {
-//            HotelData.readFromFile(customerID + "_bill.txt");
-//        } catch(FileNotFoundException e) {
-//            List<Integer> customerBill = new ArrayList<>();
-//
-//            HotelData.writeToFile(customerBill, customerID + "_bill.txt");
-//        }
+        int customerID = ResultClass.getCustomerId(sqlStatement, fullName);
+
+        List<Integer> customerBill = new ArrayList<>();
+
+        HotelData.writeToFile(customerBill, customerID + "_bill.txt");
     }
 
     public void searchCustomer() throws SQLException {
@@ -59,27 +59,27 @@ public class Management {
     }
 
     public void foodOrder() throws SQLException {
-        sqlStatement = Run.getSqlStatement();
-        System.out.println("Please choose something from the menu");
-        System.out.println();
-        int foodChoice = USER_INTERFACE.foodChoice();
-
-        if (!(foodChoice == 0)) {
-            int customerID = USER_INTERFACE.enterInteger("customer id");
-
-            PreparedStatement statement = sqlStatement.getConnection().prepareStatement("INSERT INTO foodOrder (food_Id, customer_id)\n" +
-                    "VALUES ( ?, ? )");
-            statement.setInt(1, foodChoice);
-            statement.setInt(2, customerID);
-
-            statement.executeUpdate();
-
-            ResultClass.setFoodResult(sqlStatement, "foodorder", customerID);
-            System.out.println("Total food orders for customer:");
-            List<Integer> customerFoodOrder = ResultClass.getCustomerFoodOrders(sqlStatement, customerID);
-            customerFoodOrder.forEach(System.out::println);
-            System.out.println();
-        }
+//        sqlStatement = Run.getSqlStatement();
+//        System.out.println("Please choose something from the menu");
+//        System.out.println();
+//        int foodChoice = USER_INTERFACE.foodChoice();
+//
+//        if (!(foodChoice == 0)) {
+//            int customerID = USER_INTERFACE.enterInteger("customer id");
+//
+//            PreparedStatement statement = sqlStatement.getConnection().prepareStatement("INSERT INTO foodOrder (food_Id, customer_id)\n" +
+//                    "VALUES ( ?, ? )");
+//            statement.setInt(1, foodChoice);
+//            statement.setInt(2, customerID);
+//
+//            statement.executeUpdate();
+//
+//            ResultClass.setFoodResult(sqlStatement, "foodorder", customerID);
+//            System.out.println("Total food orders for customer:");
+//            List<Integer> customerFoodOrder = ResultClass.getCustomerId(sqlStatement, customerID);
+//            customerFoodOrder.forEach(System.out::println);
+//            System.out.println();
+//        }
     }
 
     public void checkOutWithBill() {

@@ -25,21 +25,17 @@ public class ResultClass {
         result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE customer_ID = " + ID + ";");
     }
 
-    public static void setRoomResult(Statement sqlStatement, String tableName, int ID) throws SQLException {
-        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE roomNumber = " + ID + ";");
-    }
-
-    public static List<Integer> getCustomerFoodOrders(Statement sqlStatement, int customerID) throws SQLException {
-        String query = "SELECT food_id FROM foodorder WHERE customer_id = " + customerID + ";";
+    public static int getCustomerId(Statement sqlStatement, String fullName) throws SQLException {
+        String query = "SELECT * FROM customer WHERE customer_name LIKE '" + fullName + "';";
         result = sqlStatement.executeQuery(query);
         List<Integer> customerFoodOrder = new ArrayList<>();
 
         int ID = 0;
         while (result.next()) {
-            ID = result.getInt("food_id");
+            ID = result.getInt("id");
             customerFoodOrder.add(ID);
         }
-        return customerFoodOrder;
+        return ID;
     }
 
     public static void setAvailableRoomsResult(Statement sqlStatement, String tableName) throws SQLException {
