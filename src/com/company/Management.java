@@ -1,14 +1,14 @@
 package com.company;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Management {
+public class Management implements Serializable {
     private static final UserInterface USER_INTERFACE = new UserInterface();
     private static Statement sqlStatement;
+    static final String filename = "_bill.txt";
 
     public void newCustomer() throws SQLException, IOException, ClassNotFoundException {
         sqlStatement = Run.getSqlStatement();
@@ -28,7 +28,7 @@ public class Management {
 
         List<Integer> customerBill = new ArrayList<>();
 
-        HotelData.writeToFile(customerBill, customerID + "_bill.txt");
+        HotelData.writeToFile(customerBill, customerID + filename);
     }
 
     public void searchCustomer() throws SQLException {
@@ -58,36 +58,55 @@ public class Management {
         System.out.println();
     }
 
-    public void foodOrder() throws SQLException {
-//        sqlStatement = Run.getSqlStatement();
-//        System.out.println("Please choose something from the menu");
-//        System.out.println();
-//        int foodChoice = USER_INTERFACE.foodChoice();
-//
-//        if (!(foodChoice == 0)) {
-//            int customerID = USER_INTERFACE.enterInteger("customer id");
-//
-//            PreparedStatement statement = sqlStatement.getConnection().prepareStatement("INSERT INTO foodOrder (food_Id, customer_id)\n" +
-//                    "VALUES ( ?, ? )");
-//            statement.setInt(1, foodChoice);
-//            statement.setInt(2, customerID);
-//
-//            statement.executeUpdate();
-//
-//            ResultClass.setFoodResult(sqlStatement, "foodorder", customerID);
-//            System.out.println("Total food orders for customer:");
-//            List<Integer> customerFoodOrder = ResultClass.getCustomerId(sqlStatement, customerID);
-//            customerFoodOrder.forEach(System.out::println);
-//            System.out.println();
-//        }
+    public void foodOrder() {
+
+
+        System.out.println("Please choose something from the menu");
+        System.out.println();
+        int foodChoice = USER_INTERFACE.foodChoice();
+
+        if (!(foodChoice == 0)) {
+            int customerID = USER_INTERFACE.enterInteger("customer id");
+
+            try {
+                FileInputStream existingBill = new FileInputStream(customerID+filename);
+                ObjectInputStream readExistingBill = new ObjectInputStream(existingBill);
+                List<food> foodOrder = (List<food>) readExistingBill.readObject();
+
+
+                switch (foodChoice) {
+                    case 1 -> foodOrder.add(food.listOfFood().get(0));
+                    case 2 -> foodOrder.add(food.listOfFood().get(1));
+                    case 3 -> foodOrder.add(food.listOfFood().get(2));
+                    case 4 -> foodOrder.add(food.listOfFood().get(3));
+                }
+
+                FileOutputStream fos = new FileOutputStream(customerID+filename);
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+                oos.writeObject(foodOrder);
+                oos.close();
+                readExistingBill.close();
+
+                FileInputStream fis = new FileInputStream(customerID+filename);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                List<food> foodOrders = (List<food>) ois.readObject();
+                System.out.println("Order History:");
+                for (food n : foodOrders) {
+                    System.out.println(n);
+                }
+                System.out.println();
+                ois.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void checkOutWithBill() {
 
-        //har beställt 1, 2, 2
-        // bill
-        //if 1 bill += 60
-        //if 2 bill += 110
+
 
     }
 

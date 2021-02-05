@@ -1,9 +1,10 @@
 package com.company;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class food {
+public class food implements Serializable {
 
     int id;
     String meal;
