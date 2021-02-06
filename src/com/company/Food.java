@@ -9,6 +9,7 @@ public class Food implements Serializable, Transaction{
     int id;
     String meal;
     int price;
+    int quantity = 0;
 
     public Food(int id, String meal, int price) {
         this.id = id;
@@ -43,5 +44,10 @@ public class Food implements Serializable, Transaction{
     @Override
     public int getPrice() {
         return price;
+    }
+
+    @Override
+    public int getQuantity() {
+        return quantity;
     }
 }

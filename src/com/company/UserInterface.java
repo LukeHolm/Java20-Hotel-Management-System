@@ -48,10 +48,10 @@ public class UserInterface {
     }
 
     public int roomChoice() {
-        System.out.println("1. Twin bed room");
-        System.out.println("2. Single bed room");
-        System.out.println("3. Deluxe twin bed room");
-        System.out.println("4. Deluxe single bed room");
+        System.out.println("1. Single bed room");
+        System.out.println("2. Twin bed room");
+        System.out.println("3. Deluxe single bed room");
+        System.out.println("4. Deluxe twin bed room");
         System.out.println("0. Exit");
 
         return userInput.getIntFromUser(0,4);
@@ -71,10 +71,10 @@ public class UserInterface {
         return userInput.getStringFromUser();
     }
 
-    public int enterInteger(String value) {
+    public int enterInteger(String value, int lowestNumber, int highestNumber) {
         System.out.println("Please enter " + value);
 
-        return userInput.getIntFromUser(1,100);
+        return userInput.getIntFromUser(lowestNumber,highestNumber);
     }
 
     public static String PadRight(String string) {

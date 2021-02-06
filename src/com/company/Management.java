@@ -1,5 +1,6 @@
 package com.company;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,8 +12,8 @@ public class Management implements Serializable {
     private static final String ROOM_COST = "_room_cost.txt";
     private static Statement sqlStatement;
     private static long totalFoodOrder;
-    private static long totalPriceForRoom;
     private final static String TOTAL_BILL = "_bill.txt";
+    private static int numberOfNights;
 
     public void newCustomer() throws SQLException, IOException {
         sqlStatement = Run.getSqlStatement();
@@ -30,6 +31,9 @@ public class Management implements Serializable {
 
         int customerID = ResultClass.getCustomerId(sqlStatement, fullName);
 
+        System.out.println(fullName + " successfully registered with cusmer Id: " + customerID);
+        System.out.println();
+
         List<Object> foodOrders = new ArrayList<>();
 
         DataHandler.writeToFile(foodOrders, customerID + FOOD_ORDERS);
@@ -37,32 +41,58 @@ public class Management implements Serializable {
         List<Object> roomCost = new ArrayList<>();
 
         DataHandler.writeToFile(roomCost, customerID + ROOM_COST);
+
+        List<Transaction> transactions = new ArrayList<>();
+
+        DataHandler.writeToFile(transactions, customerID + TOTAL_BILL);
     }
 
     public void searchCustomer() throws SQLException {
         sqlStatement = Run.getSqlStatement();
-        int customerId = USER_INTERFACE.enterInteger("customer ID");
+        System.out.println("1. Search by Id");
+        System.out.println("2. Search by name");
+        int ans = USER_INTERFACE.enterInteger("", 1, 2);
+        switch (ans) {
+            case 1 -> {
+                int customerId = USER_INTERFACE.enterInteger("customer ID", 1, 100);
 
-        PreparedStatement statement = sqlStatement.getConnection().prepareStatement("SELECT * FROM CUSTOMER WHERE ID = ? ");
-        statement.setInt(1, customerId);
+                PreparedStatement statement = sqlStatement.getConnection().prepareStatement("SELECT * FROM CUSTOMER WHERE ID = ? ");
+                statement.setInt(1, customerId);
 
-        statement.executeQuery();
+                statement.executeQuery();
 
-        ResultClass.setResult(sqlStatement, "customer", customerId);
+                ResultClass.setResult(sqlStatement, "customer", customerId);
+            }
+            case 2 -> {
+                String firstName = USER_INTERFACE.enterValue("customer first name");
+                String lastName = USER_INTERFACE.enterValue("customer last name");
+                String fullName = firstName + " " + lastName;
+                int customerId = ResultClass.searchCustomerByName(sqlStatement, fullName);
+
+                PreparedStatement statement = sqlStatement.getConnection().prepareStatement("SELECT * FROM CUSTOMER WHERE ID = ? ");
+                statement.setInt(1, customerId);
+
+                statement.executeQuery();
+
+                ResultClass.setResult(sqlStatement, "customer", customerId);
+            }
+        }
 
         listAllFromTable();
+        System.out.println();
     }
 
-    public void manageCustomer() throws SQLException {
+    public void deleteCustomer() throws SQLException {
         sqlStatement = Run.getSqlStatement();
-        int customerId = USER_INTERFACE.enterInteger("customer ID");
+        int customerId = USER_INTERFACE.enterInteger("customer ID",1, 100);
+        customerId = ResultClass.checkIfIdExistst("customer",customerId, "Id");
 
         PreparedStatement statement = sqlStatement.getConnection().prepareStatement("DELETE FROM customer WHERE id = ?");
         statement.setInt(1, customerId);
 
         statement.executeUpdate();
 
-        System.out.println("Customer with Id :" + customerId + " deleted.");
+        System.out.println("Customer with Id " + customerId + " successfully deleted.");
         System.out.println();
     }
 
@@ -112,28 +142,46 @@ public class Management implements Serializable {
 
     public void foodOrder2(int foodChoice) throws IOException, ClassNotFoundException {
 
-        int customerID = USER_INTERFACE.enterInteger("customer id");
+//        int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
+//
+//        List<Food> foodOrder = DataHandler.readFromFile(customerID + FOOD_ORDERS);
+//
+//        foodOrder.add(Food.listOfFood().get(foodChoice - 1));
+//
+//        DataHandler.writeToFile(foodOrder, customerID + FOOD_ORDERS);
+//        foodOrder = DataHandler.readFromFile(customerID + FOOD_ORDERS);
+//        System.out.println();
+//        System.out.println("Order History:");
+//        foodOrder.stream().map(s -> s.meal).forEach(System.out::println);
+//        System.out.println();
+//        System.out.println("Total ammount:");
+//        totalFoodOrder = foodOrder.stream()
+//                .mapToInt(s -> s.price).summaryStatistics().getSum();
+//        System.out.println(totalFoodOrder + " SEK");
+//        System.out.println();
 
-        List<Food> foodOrder = DataHandler.readFromFile(customerID + FOOD_ORDERS);
+        int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
+
+        List<Transaction> foodOrder = DataHandler.readFromFile(customerID + TOTAL_BILL);
 
         foodOrder.add(Food.listOfFood().get(foodChoice - 1));
 
-        DataHandler.writeToFile(foodOrder, customerID + FOOD_ORDERS);
-        foodOrder = DataHandler.readFromFile(customerID + FOOD_ORDERS);
+        DataHandler.writeToFile(foodOrder, customerID + TOTAL_BILL);
+        foodOrder = DataHandler.readFromFile(customerID + TOTAL_BILL);
         System.out.println();
         System.out.println("Order History:");
-        foodOrder.stream().map(s -> s.meal).forEach(System.out::println);
+        foodOrder.stream().map(s -> s.getNameOfTransaction()).forEach(System.out::println);
         System.out.println();
         System.out.println("Total ammount:");
         totalFoodOrder = foodOrder.stream()
-                .mapToInt(s -> s.price).summaryStatistics().getSum();
+                .mapToInt(s -> s.getPrice()).summaryStatistics().getSum();
         System.out.println(totalFoodOrder + " SEK");
         System.out.println();
     }
 
-    public void checkOutWithBill() throws SQLException {
+    public void checkOutWithBill() throws SQLException, IOException, ClassNotFoundException {
         sqlStatement = Run.getSqlStatement();
-        int customerID = USER_INTERFACE.enterInteger("customer id");
+        int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
 
         PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking SET checkOutDate = CURRENT_TIMESTAMP, roomavailable = true WHERE customer_id = ? ;");
 
@@ -141,10 +189,9 @@ public class Management implements Serializable {
 
         statement.executeUpdate();
 
-        System.out.println("Thanks for visiting us, welcome back!");
-
-        System.out.println("Total price to pay:");
-        System.out.println(totalFoodOrder + totalPriceForRoom);
+        System.out.println("Bill for customer with id " + customerID + ":");
+        getBill(customerID);
+        System.out.println();
     }
 
     public int roomDetails() throws IOException, ClassNotFoundException {
@@ -183,9 +230,10 @@ public class Management implements Serializable {
 
         if (USER_INTERFACE.confirm()) {
 
-            int customerID = USER_INTERFACE.enterInteger("customer id");
+            numberOfNights = USER_INTERFACE.enterInteger("number of nights to book",1 ,14);
 
-            int numberOfNights = USER_INTERFACE.enterInteger("number of nights to book");
+            int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
+            customerID = ResultClass.checkIfIdExistst("customer",customerID, "id");
 
             PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking " +
                     "SET customer_id = ?, checkindate = CURRENT_TIMESTAMP, roomavailable = false, " +
@@ -201,13 +249,10 @@ public class Management implements Serializable {
             listAllFromTable();
             System.out.println();
 
-            List<Room> roomCost = DataHandler.readFromFile(customerID + ROOM_COST);
-            roomCost.add(Room.rooms().get(roomChoice - 1));
+            List<Transaction> transactions = new ArrayList<>();
+            transactions.add(Room.rooms().get(roomChoice - 1));
 
-            DataHandler.writeToFile(roomCost, customerID + ROOM_COST);
-            roomCost = DataHandler.readFromFile(customerID + ROOM_COST);
-            totalPriceForRoom = (roomCost.stream()
-                    .mapToInt(s -> s.price).summaryStatistics().getSum() * numberOfNights);
+            DataHandler.writeToFile(transactions,customerID + TOTAL_BILL);
         }
     }
 
@@ -239,16 +284,42 @@ public class Management implements Serializable {
         System.out.println();
     }
 
-    public static void getBill() throws IOException, ClassNotFoundException {
+    public static void getBill(int customerId) throws IOException, ClassNotFoundException {
 
-        List<Transaction> transactions = DataHandler.readFromFile(10 + TOTAL_BILL);
-        DataHandler.writeToFile(transactions, 10 + TOTAL_BILL);
+        List<Transaction> transactions = DataHandler.readFromFile(customerId + TOTAL_BILL);
+
+        DataHandler.writeToFile(transactions, customerId + TOTAL_BILL);
+
+        transactions = DataHandler.readFromFile(customerId + TOTAL_BILL);
+
+        System.out.println("-Room-");
+        transactions.stream()
+                .filter(s -> s instanceof Room)
+                .map (s -> (Room) s)
+                .map(s -> s.getNameOfTransaction() + " " + s.getPrice() + " SEK - " + numberOfNights + " nights")
+                .forEach(System.out::println);
+
+        long roomCost = (transactions.stream()
+                .filter(s -> s instanceof Room)
+                .map (s -> (Room) s)
+                .mapToInt(Room::getPrice).summaryStatistics().getSum()) * numberOfNights;
+        System.out.println(roomCost);
+
+        System.out.println("-Roomservice-");
+        transactions.stream()
+                .filter(s -> s instanceof Food)
+                .map (s -> (Food) s)
+                .map(s -> "- " + s.getNameOfTransaction() + " " + s.getPrice() + " SEK")
+                .forEach(System.out::println);
+
+        long foodOrder = transactions.stream()
+                .filter(s -> s instanceof Food)
+                .map (s -> (Food) s)
+                .mapToInt(Food::getPrice).summaryStatistics().getSum();
 
         System.out.println();
-        System.out.println("Total price");
-        transactions = DataHandler.readFromFile(10 + TOTAL_BILL);
-        long total = transactions.stream().mapToInt(Transaction::getPrice)
-                .summaryStatistics().getSum();
-        System.out.println(total + " SEK");
+        System.out.println("Total: " + (roomCost + foodOrder) + " SEK");
+        System.out.println();
+        System.out.println("Thanks for visiting us, welcome back!");
     }
 }

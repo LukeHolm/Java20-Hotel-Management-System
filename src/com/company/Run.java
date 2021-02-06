@@ -58,7 +58,7 @@ public class Run {
         switch (selection) {
             case 1 -> MANAGEMENT.newCustomer();
             case 2 -> MANAGEMENT.searchCustomer();
-            case 3 -> MANAGEMENT.manageCustomer();
+            case 3 -> MANAGEMENT.deleteCustomer();
             case 4 -> MANAGEMENT.bookRoom();
             case 5 -> {
                 int foodChoice = USER_INTERFACE.foodChoice();

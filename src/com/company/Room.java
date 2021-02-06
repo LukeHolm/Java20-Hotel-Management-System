@@ -9,12 +9,22 @@ public class Room implements Serializable, Transaction{
 //    int roomNumber = 101;                     //TODO: NÄr vi vill ha fler än 4 rum
     int typeOfRoom;
     String roomName;
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     String roomDescription;
     int price;
     boolean wifi;
     boolean tv;
     boolean aircondition;
     boolean smoking;
+    int quantity;
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
 
     public Room(int typeOfRoom, String roomName, String roomDescription, int price, boolean wifi, boolean tv, boolean aircondition, boolean smoking) {
         this.typeOfRoom = typeOfRoom;
@@ -42,12 +52,12 @@ public class Room implements Serializable, Transaction{
         Room deluxeSingle = new Room(3, "Deluxe single",
                 "This is deluxe single bedroom with a queen sized bed\nand flat screen tv. It is filled with all of your necessities,\n"+
                         "a wellstocked minifridge and your own private bathroom with a jet stream bathtub.",
-                650, true, true,true, false);
+                850, true, true,true, false);
 
         Room deluxeDouble = new Room(4, "Deluxe Double",
                 "This is deluxe double bedroom with a king sized bed\nand flat screen tv. It is filled with all of your necessities,\n" +
                         "a wellstocked minifridge and your own private bathroom with a jaccuzzi that fits up to 4 people.",
-                950, true, true,true, false);
+                1250, true, true,true, false);
 
         List<Room> rooms = new ArrayList<>();
         rooms.add(standardSingle);
@@ -73,5 +83,10 @@ public class Room implements Serializable, Transaction{
     @Override
     public String getNameOfTransaction() {
         return roomName;
+    }
+
+    @Override
+    public int getQuantity() {
+        return quantity;
     }
 }
