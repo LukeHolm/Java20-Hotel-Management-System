@@ -60,7 +60,12 @@ public class Run {
             case 2 -> MANAGEMENT.searchCustomer();
             case 3 -> MANAGEMENT.manageCustomer();
             case 4 -> MANAGEMENT.bookRoom();
-            case 5 -> MANAGEMENT.foodOrder();
+            case 5 -> {
+                int foodChoice = USER_INTERFACE.foodChoice();
+                if (!(foodChoice == 0)) {
+                    MANAGEMENT.foodOrder2(foodChoice);
+                }
+            }
             case 6 -> MANAGEMENT.checkOutWithBill();
             case 0 -> exitLoop = true;
         }
@@ -71,7 +76,12 @@ public class Run {
             case 1 -> MANAGEMENT.roomDetails();
             case 2 -> MANAGEMENT.roomAvailability();
             case 3 -> MANAGEMENT.bookRoom();
-            case 4 -> MANAGEMENT.foodOrder2();
+            case 4 -> {
+                int foodChoice = USER_INTERFACE.foodChoice();
+                if (!(foodChoice == 0)) {
+                    MANAGEMENT.foodOrder2(foodChoice);
+                }
+            }
             case 5 -> MANAGEMENT.checkOutWithBill();
             case 0 -> exitLoop = true;
         }

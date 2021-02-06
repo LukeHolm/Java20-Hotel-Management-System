@@ -39,6 +39,8 @@ public class UserInterface {
     }
 
     public int foodChoice() throws IOException {
+        System.out.println("Please choose something from the menu");
+        System.out.println();
         Food.listOfFood().forEach(System.out::println);
         System.out.println("0. Go back");
 

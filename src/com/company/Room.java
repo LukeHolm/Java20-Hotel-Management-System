@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Room implements Serializable {
+public class Room implements Serializable, Transaction{
     private static final long serialVersionUID = 6584851985744000754L;
 //    int roomNumber = 101;                     //TODO: NÄr vi vill ha fler än 4 rum
     int typeOfRoom;
@@ -63,5 +63,15 @@ public class Room implements Serializable {
     @Override
     public String toString() {
         return roomDescription + " - " + price + "KR";
+    }
+
+    @Override
+    public int getPrice() {
+        return price;
+    }
+
+    @Override
+    public String getNameOfTransaction() {
+        return roomName;
     }
 }

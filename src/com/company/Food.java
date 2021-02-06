@@ -1,11 +1,11 @@
 package com.company;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Food implements Serializable{
+public class Food implements Serializable, Transaction{
+    private static final long serialVersionUID = 5381669091941085221L;
     int id;
     String meal;
     int price;
@@ -33,5 +33,15 @@ public class Food implements Serializable{
     @Override
     public String toString() {
         return id + ". " + meal + " - " + price + "KR";
+    }
+
+    @Override
+    public String getNameOfTransaction() {
+        return meal;
+    }
+
+    @Override
+    public int getPrice() {
+        return price;
     }
 }
