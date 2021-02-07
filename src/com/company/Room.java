@@ -6,24 +6,18 @@ import java.util.List;
 
 public class Room implements Serializable, Transaction{
     private static final long serialVersionUID = 6584851985744000754L;
-//    int roomNumber = 101;                     //TODO: NÄr vi vill ha fler än 4 rum
     int typeOfRoom;
     String roomName;
+    String roomDescription;
+    int price;
+    private boolean wifi;
+    private boolean tv;
+    private boolean aircondition;
+    private boolean smoking;
+    private int quantity;
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-    }
-
-    String roomDescription;
-    int price;
-    boolean wifi;
-    boolean tv;
-    boolean aircondition;
-    boolean smoking;
-    int quantity;
-
-    public void setPrice(int price) {
-        this.price = price;
     }
 
     public Room(int typeOfRoom, String roomName, String roomDescription, int price, boolean wifi, boolean tv, boolean aircondition, boolean smoking) {
@@ -35,7 +29,6 @@ public class Room implements Serializable, Transaction{
         this.tv = tv;
         this.aircondition = aircondition;
         this.smoking = smoking;
-//        roomNumber++;                         //TODO: NÄr vi vill ha fler än 4 rum
     }
 
     public static List<Room> rooms() throws IOException {

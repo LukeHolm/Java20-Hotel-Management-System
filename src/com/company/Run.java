@@ -66,7 +66,11 @@ public class Run {
                     MANAGEMENT.foodOrder2(foodChoice);
                 }
             }
-            case 6 -> MANAGEMENT.checkOutWithBill();
+            case 6 -> {
+                int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
+                MANAGEMENT.checkOutWithBill(customerID);
+            }
+
             case 0 -> exitLoop = true;
         }
     }
@@ -82,7 +86,10 @@ public class Run {
                     MANAGEMENT.foodOrder2(foodChoice);
                 }
             }
-            case 5 -> MANAGEMENT.checkOutWithBill();
+            case 5 -> {
+                int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
+                MANAGEMENT.checkOutWithBill(customerID);
+            }
             case 0 -> exitLoop = true;
         }
     }

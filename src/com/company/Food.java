@@ -6,10 +6,10 @@ import java.util.List;
 
 public class Food implements Serializable, Transaction{
     private static final long serialVersionUID = 5381669091941085221L;
-    int id;
-    String meal;
-    int price;
-    int quantity = 0;
+    private int id;
+    private String meal;
+    private int price;
+    private int quantity = 0;
 
     public Food(int id, String meal, int price) {
         this.id = id;
@@ -33,7 +33,7 @@ public class Food implements Serializable, Transaction{
 
     @Override
     public String toString() {
-        return id + ". " + meal + " - " + price + "KR";
+        return id + ". " + meal + " - " + price + " SEK";
     }
 
     @Override

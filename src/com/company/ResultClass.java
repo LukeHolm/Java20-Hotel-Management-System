@@ -19,10 +19,6 @@ public class ResultClass {
         result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE ID = " + ID + ";");
     }
 
-    public static void setFoodResult(Statement sqlStatement, String tableName, int ID) throws SQLException {
-        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE customer_id = " + ID + ";");
-    }
-
     public static void setBookedRoomResult(Statement sqlStatement, String tableName, int ID) throws SQLException {
         result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE customer_ID = " + ID + ";");
     }
@@ -73,5 +69,16 @@ public class ResultClass {
                 return ID;
             }
         }
+    }
+
+    public static int checkIfCustomerHasARoom(Statement sqlStatement, int inputId) throws SQLException {
+        String query = "SELECT * FROM roombooking WHERE customer_id = " + inputId + " AND roomavailable = 0;";
+        result = sqlStatement.executeQuery(query);
+
+        int ID = 0;
+        while (result.next()) {
+            ID = result.getInt("customer_id");
+        }
+        return ID;
     }
 }
