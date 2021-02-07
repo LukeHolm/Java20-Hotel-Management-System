@@ -81,4 +81,7 @@ public class ResultClass {
         }
         return ID;
     }
+    public static void setupResult(Statement sqlStatement, String query) throws SQLException {
+        int result2 = sqlStatement.executeUpdate(query);
+    }
 }

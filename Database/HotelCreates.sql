@@ -1,5 +1,5 @@
 CREATE DATABASE hotel_booking_system;
--- DROP DATABASE hotel_booking_system;
+DROP DATABASE hotel_booking_system;
 
 USE hotel_booking_system;
 
@@ -31,6 +31,8 @@ FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE,
 FOREIGN KEY (roomnumber) REFERENCES room(roomNumber) ON DELETE CASCADE
 );
 
+SELECT * FROM roombooking WHERE customer_id = 13 AND roomavailable = 0;
+
 CREATE TABLE foodOrder (
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 food_id INT NOT NULL,
@@ -46,8 +48,3 @@ WHERE roomAvailable = 1;
 CREATE VIEW bookedroom AS
 SELECT DISTINCT customer_id, typeOfroom, price_per_night FROM room 
 JOIN roombooking ON room.roomnumber = roombooking.roomnumber;
-
-CREATE VIEW roomDescription 
-SELECT DISTINCT typeOfRoom, price FROM room,
-SELECT DISTINCT roomDescription FROM room,
-SELECT DISTINCT wifi, tv, aircondition, smoking FROM room;

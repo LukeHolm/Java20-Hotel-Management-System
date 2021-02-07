@@ -12,14 +12,15 @@ public class Run {
     private static Statement sqlStatement = null;
     private static final String url = "jdbc:mysql://localhost:3306/hotel_booking_system?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     private static final String user = "root";
+    //#region password
+    private static final String password = "";
+    //endregion
     private static boolean exitProgram = false;
     private static boolean exitLoop = false;
     private static Connection connection;
 
     public void Program() throws SQLException {
-        //#region Database password
-        connection = DriverManager.getConnection(url, user, "Jole0257!");
-        //#endregion
+        connection = DriverManager.getConnection(url, user, password);
         try {
             createSqlStatement();
             while (!exitProgram) {
@@ -63,13 +64,14 @@ public class Run {
             case 5 -> {
                 int foodChoice = USER_INTERFACE.foodChoice();
                 if (!(foodChoice == 0)) {
-                    MANAGEMENT.foodOrder2(foodChoice);
+                    MANAGEMENT.foodOrder(foodChoice);
                 }
             }
             case 6 -> {
                 int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
                 MANAGEMENT.checkOutWithBill(customerID);
             }
+            case 7 -> MANAGEMENT.setup();
 
             case 0 -> exitLoop = true;
         }
@@ -83,7 +85,7 @@ public class Run {
             case 4 -> {
                 int foodChoice = USER_INTERFACE.foodChoice();
                 if (!(foodChoice == 0)) {
-                    MANAGEMENT.foodOrder2(foodChoice);
+                    MANAGEMENT.foodOrder(foodChoice);
                 }
             }
             case 5 -> {

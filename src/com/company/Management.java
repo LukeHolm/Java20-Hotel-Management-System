@@ -1,5 +1,8 @@
 package com.company;
 
+import com.mysql.cj.x.protobuf.MysqlxPrepare;
+
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
@@ -71,8 +74,8 @@ public class Management implements Serializable {
 
     public void deleteCustomer() throws SQLException {
         sqlStatement = Run.getSqlStatement();
-        int customerId = USER_INTERFACE.enterInteger("customer ID",1, 100);
-        customerId = ResultClass.checkIfIdExistst("customer",customerId, "Id");
+        int customerId = USER_INTERFACE.enterInteger("customer ID", 1, 100);
+        customerId = ResultClass.checkIfIdExistst("customer", customerId, "Id");
 
         PreparedStatement statement = sqlStatement.getConnection().prepareStatement("DELETE FROM customer WHERE id = ?");
         statement.setInt(1, customerId);
@@ -83,51 +86,7 @@ public class Management implements Serializable {
         System.out.println();
     }
 
-    public void foodOrder() {
-
-//        System.out.println("Please choose something from the menu");
-//        System.out.println();
-//        int foodChoice = USER_INTERFACE.foodChoice();
-//
-//        if (!(foodChoice == 0)) {
-//            int customerID = USER_INTERFACE.enterInteger("customer id");
-//
-//            try {
-//                FileInputStream existingBill = new FileInputStream(customerID + FILENAME);
-//                ObjectInputStream readExistingBill = new ObjectInputStream(existingBill);
-//                List<Food> foodOrder = (List<Food>) readExistingBill.readObject();
-//
-//                switch (foodChoice) {
-//                    case 1 -> foodOrder.add(Food.listOfFood().get(0));
-//                    case 2 -> foodOrder.add(Food.listOfFood().get(1));
-//                    case 3 -> foodOrder.add(Food.listOfFood().get(2));
-//                    case 4 -> foodOrder.add(Food.listOfFood().get(3));
-//                }
-//
-//                FileOutputStream fos = new FileOutputStream(customerID + FILENAME);
-//                ObjectOutputStream oos = new ObjectOutputStream(fos);
-//
-//                oos.writeObject(foodOrder);
-//                oos.close();
-//                readExistingBill.close();
-//
-//                FileInputStream fis = new FileInputStream(customerID + FILENAME);
-//                ObjectInputStream ois = new ObjectInputStream(fis);
-//                List<Food> foodOrders = (List<Food>) ois.readObject();
-//                System.out.println("Order History:");
-//                for (Food n : foodOrders) {
-//                    System.out.println(n);
-//                }
-//                System.out.println();
-//                ois.close();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-
-    }
-
-    public void foodOrder2(int foodChoice) throws IOException, ClassNotFoundException {
+    public void foodOrder(int foodChoice) throws IOException, ClassNotFoundException {
 
         int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
 
@@ -140,14 +99,14 @@ public class Management implements Serializable {
         System.out.println();
         System.out.println("Order History:");
         foodOrder.stream().filter(s -> s instanceof Food)
-                .map (s -> (Food) s)
+                .map(s -> (Food) s)
                 .map(Food::getNameOfTransaction)
                 .forEach(System.out::println);
         System.out.println();
         System.out.println("Total ammount:");
         long totalFoodOrder = foodOrder.stream()
                 .filter(s -> s instanceof Food)
-                .map (s -> (Food) s)
+                .map(s -> (Food) s)
                 .mapToInt(Food::getPrice).summaryStatistics().getSum();
         System.out.println(totalFoodOrder + " SEK");
         System.out.println();
@@ -156,7 +115,7 @@ public class Management implements Serializable {
     public void checkOutWithBill(int customerID) throws SQLException, IOException, ClassNotFoundException {
         sqlStatement = Run.getSqlStatement();
 
-        customerID = ResultClass.checkIfIdExistst("customer", customerID,"id");
+        customerID = ResultClass.checkIfIdExistst("customer", customerID, "id");
 
         PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking SET checkOutDate = CURRENT_TIMESTAMP, roomavailable = true, customer_id = null WHERE customer_id = ? ;");
 
@@ -205,40 +164,41 @@ public class Management implements Serializable {
 
         if (USER_INTERFACE.confirm()) {
 
-            int numberOfNights = USER_INTERFACE.enterInteger("number of nights to book",1 ,14);
+            int numberOfNights = USER_INTERFACE.enterInteger("number of nights to book", 1, 14);
 
             int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
-            customerID = ResultClass.checkIfIdExistst("customer",customerID, "id");
+            customerID = ResultClass.checkIfIdExistst("customer", customerID, "id");
             int customerID2 = ResultClass.checkIfCustomerHasARoom(sqlStatement, customerID);
             if ((customerID2 == customerID)) {
-                System.out.println("You allready have a booked room, do you want to check out?");
-                if(USER_INTERFACE.confirm()) {
+                System.out.println("You already have a booked room, do you want to check out?");
+                if (USER_INTERFACE.confirm()) {
                     checkOutWithBill(customerID);
-                } }else {
-                    PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking " +
-                            "SET customer_id = ?, checkindate = CURRENT_TIMESTAMP, roomavailable = false, " +
-                            "checkOutDate = DATE_ADD(checkindate,INTERVAL " + numberOfNights + " DAY) WHERE roomnumber = " + roomChoice + ";");
-                    statement.setInt(1, customerID);
-
-                    statement.executeUpdate();
-
-                    System.out.println("The room is now booked!:");
-
-                    ResultClass.setBookedRoomResult(sqlStatement, "bookedroom", customerID);
-
-                    listAllFromTable();
-                    System.out.println();
-
-                    List<T> transactions = new ArrayList<>();
-
-                    Room room = Room.rooms().get(roomChoice -1);
-                    room.setQuantity(numberOfNights);
-                    transactions.add((T) room);
-
-                    DataHandler.writeToFile(transactions,customerID + TOTAL_BILL);
                 }
+            } else {
+                PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking " +
+                        "SET customer_id = ?, checkindate = CURRENT_TIMESTAMP, roomavailable = false, " +
+                        "checkOutDate = DATE_ADD(checkindate,INTERVAL " + numberOfNights + " DAY) WHERE roomnumber = " + roomChoice + ";");
+                statement.setInt(1, customerID);
+
+                statement.executeUpdate();
+
+                System.out.println("The room is now booked!:");
+
+                ResultClass.setBookedRoomResult(sqlStatement, "bookedroom", customerID);
+
+                listAllFromTable();
+                System.out.println();
+
+                List<T> transactions = new ArrayList<>();
+
+                Room room = Room.rooms().get(roomChoice - 1);
+                room.setQuantity(numberOfNights);
+                transactions.add((T) room);
+
+                DataHandler.writeToFile(transactions, customerID + TOTAL_BILL);
             }
         }
+    }
 
     public void listAllFromTable() throws SQLException {
         ResultSet result = ResultClass.getResult();
@@ -280,31 +240,83 @@ public class Management implements Serializable {
         System.out.println("......ROOM COST......");
         transactions.stream()
                 .filter(s -> s instanceof Room)
-                .map (s -> (Room) s)
+                .map(s -> (Room) s)
                 .map(s -> "- " + s.getNameOfTransaction() + " " + s.getPrice() + " SEK - " + s.getQuantity() + " nights\n\t" + s.getPrice() * s.getQuantity() + " SEK")
                 .forEach(System.out::println);
 
-         long totalRoomCost = (transactions.stream()
+        long totalRoomCost = (transactions.stream()
                 .filter(s -> s instanceof Room)
-                .map (s -> (Room) s)
+                .map(s -> (Room) s)
                 .mapToInt(s -> s.getPrice() * s.getQuantity()).summaryStatistics().getSum());
         System.out.println();
 
         System.out.println("......ROOMSERVICE......");
         transactions.stream()
                 .filter(s -> s instanceof Food)
-                .map (s -> (Food) s)
+                .map(s -> (Food) s)
                 .map(s -> "- " + s.getNameOfTransaction() + " " + s.getPrice() + " SEK")
                 .forEach(System.out::println);
 
         long foodOrder = transactions.stream()
                 .filter(s -> s instanceof Food)
-                .map (s -> (Food) s)
+                .map(s -> (Food) s)
                 .mapToInt(Food::getPrice).summaryStatistics().getSum();
 
         System.out.println();
         System.out.println("\t" + ((totalRoomCost + foodOrder)) + " SEK");
         System.out.println();
         System.out.println("Thanks for visiting us, welcome back!");
+    }
+
+    public void setup() throws SQLException, IOException {
+
+        sqlStatement = Run.getSqlStatement();
+        List<Room> newFile = Room.rooms();
+        DataHandler.writeToFile(newFile, "Rooms.txt");
+
+
+        //Creating database
+        String dropDatabase = "DROP DATABASE hotel_booking_system;";
+        String createDatabase = "CREATE DATABASE hotel_booking_system;";
+        String useDatabase = "USE hotel_booking_system";
+        String createCustomerTable = "CREATE TABLE customer (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, customer_name VARCHAR(50) NOT NULL, contact_number VARCHAR(50));";
+        String createRoomTable = "CREATE TABLE room (roomNumber INT NOT NULL PRIMARY KEY AUTO_INCREMENT, typeOfRoom INT NOT NULL, room_Description VARCHAR(250), price_per_night INT NOT NULL, wifi BIT DEFAULT 1, tv VARCHAR(50) NOT NULL, aircondition BIT NOT NULL, smoking BIT DEFAULT 0);";
+        String createRoomBookingTable = "CREATE TABLE roomBooking (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, roomNumber INT NOT NULL, customer_id INT DEFAULT NULL, roomAvailable BIT DEFAULT 1, checkInDate DATETIME DEFAULT NULL, checkOutDate DATETIME DEFAULT NULL, FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE,FOREIGN KEY (roomnumber) REFERENCES room(roomNumber) ON DELETE CASCADE);";
+        String createFoodOrderTable = "CREATE TABLE foodOrder (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, food_id INT NOT NULL, customer_id INT, FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE);";
+        String createViewAvailableRooms = "CREATE VIEW availableRooms AS SELECT DISTINCT room.roomNumber, typeOfRoom FROM room JOIN roomBooking ON roomBooking.roomNumber = room.roomNumber WHERE roomAvailable = 1;";
+        String createViewBookedRooms = "CREATE VIEW bookedroom AS SELECT DISTINCT customer_id, typeOfroom, price_per_night FROM room JOIN roombooking ON room.roomnumber = roombooking.roomnumber;";
+
+        //Creating rooms
+        String createStandardSingle = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition) VALUES (1, 450, 0, 'big old tv', 1);";
+        String createStandardDouble = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (2, 600, 0, 'big old tv', 1)";
+        String createDeluxeSingle = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (3, 850, 1, 'flat screen', 1);";
+        String createDeluxeDouble = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (4, 1250, 1, 'flat screen', 1);";
+
+
+
+
+        ResultClass.setupResult(sqlStatement, dropDatabase);
+        ResultClass.setupResult(sqlStatement, createDatabase);
+        ResultClass.setupResult(sqlStatement, useDatabase);
+        ResultClass.setupResult(sqlStatement, createCustomerTable);
+        ResultClass.setupResult(sqlStatement, createRoomTable);
+        ResultClass.setupResult(sqlStatement, createRoomBookingTable);
+        ResultClass.setupResult(sqlStatement, createFoodOrderTable);
+        ResultClass.setupResult(sqlStatement, createViewAvailableRooms);
+        ResultClass.setupResult(sqlStatement, createViewBookedRooms);
+        ResultClass.setupResult(sqlStatement,createStandardSingle);
+        ResultClass.setupResult(sqlStatement,createStandardDouble);
+        ResultClass.setupResult(sqlStatement,createDeluxeSingle);
+        ResultClass.setupResult(sqlStatement,createDeluxeDouble);
+
+        //Inserting rooms into booking system
+        for (int i = 1; i < 5; i++) {
+            String createRoomNumbers = "INSERT INTO roombooking (roomnumber) VALUES (" + i + ");";
+            ResultClass.setupResult(sqlStatement, createRoomNumbers);
+        }
+
+
+
+
     }
 }
