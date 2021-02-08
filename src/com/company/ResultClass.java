@@ -9,8 +9,8 @@ public class ResultClass {
     private static java.sql.ResultSet result;
     private static UserInputHandler userInput = new UserInputHandler();
 
-    public static void setResult(Statement sqlStatement, String tableName, int inputId) throws SQLException {
-        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE customer_id = " + inputId + ";");
+    public static void setResult(Statement sqlStatement, String tableName, String collumnName, int inputId) throws SQLException {
+        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE " + collumnName + " = " + inputId + ";");
     }
 
     public static void setAvailableRoomsResult(Statement sqlStatement, String tableName) throws SQLException {
@@ -28,12 +28,12 @@ public class ResultClass {
         return ID;
     }
 
-    public static int checkIfIdExistst(String tableName, int inputID, String columnName) throws SQLException {
+    public static int idMatches(String tableName, int inputID, String columnName) throws SQLException {
         ResultSet result;
         Statement sqlStatement = Run.getSqlStatement();
 
         while (true) {
-            String query = "SELECT * FROM " + tableName + " WHERE ID = " + inputID;
+            String query = "SELECT * FROM " + tableName + " WHERE ID = " + inputID + ";";
             result = sqlStatement.executeQuery(query);
             int ID = 0;
             while (result.next()) {
@@ -48,14 +48,18 @@ public class ResultClass {
         }
     }
 
-    public static int ifInputMatches(Statement sqlStatement, String query, String columnName) throws SQLException {
+    public static boolean ifInputMatches(Statement sqlStatement, String query, String columnName) throws SQLException {
         result = sqlStatement.executeQuery(query);
 
         int ID = 0;
         while (result.next()) {
             ID = result.getInt(columnName);
         }
-        return ID;
+        if (ID == 0)
+            return false;
+        else
+            return true;
+
     }
 
     public static java.sql.ResultSet getResult() {

@@ -38,17 +38,20 @@ public class Management implements Serializable {
         sqlStatement = Run.getSqlStatement();
         System.out.println("1. Search by Id");
         System.out.println("2. Search by name");
-        int ans = USER_INTERFACE.enterInteger("", 1, 2);
+        int ans = USER_INTERFACE.enterInteger("1 or 2", 1, 2);
         switch (ans) {
             case 1 -> {
                 int customerId = USER_INTERFACE.enterInteger("customer ID", 1, 100);
-
+                customerId = ResultClass.idMatches("customer", customerId, "id");
                 PreparedStatement statement = sqlStatement.getConnection().prepareStatement("SELECT * FROM CUSTOMER WHERE ID = ? ");
                 statement.setInt(1, customerId);
 
                 statement.executeQuery();
 
-                ResultClass.setResult(sqlStatement, "customer", customerId);
+                ResultClass.setResult(sqlStatement, "customer", "id", customerId);
+                System.out.println("User found:");
+                System.out.println();
+                listAllFromTable();
             }
             case 2 -> {
                 String firstName = USER_INTERFACE.enterValue("customer first name");
@@ -56,24 +59,32 @@ public class Management implements Serializable {
                 String fullName = firstName + " " + lastName;
 
                 String query = "SELECT * FROM customer WHERE customer_name LIKE '" + fullName + "';";
-                int customerId = ResultClass.ifInputMatches(sqlStatement, query, "id");
+                boolean userFound = ResultClass.ifInputMatches(sqlStatement, query, "id");
 
-                PreparedStatement statement = sqlStatement.getConnection().prepareStatement("SELECT * FROM CUSTOMER WHERE ID = ? ");
-                statement.setInt(1, customerId);
+                if (userFound) {
+                    System.out.println("User found:");
+                    System.out.println();
 
-                statement.executeQuery();
+                    int customerId = ResultClass.getCustomerId(sqlStatement,fullName);
+                    PreparedStatement statement = sqlStatement.getConnection().prepareStatement("SELECT * FROM CUSTOMER WHERE ID = ? ");
+                    statement.setInt(1, customerId);
 
-                ResultClass.setResult(sqlStatement, "customer", customerId);
+                    statement.executeQuery();
+
+                    ResultClass.setResult(sqlStatement, "customer", "id", customerId);
+                    listAllFromTable();
+                } else {
+                    System.out.println("No user was found!");
+                }
             }
         }
-        listAllFromTable();
         System.out.println();
     }
 
     public void deleteCustomer() throws SQLException {
         sqlStatement = Run.getSqlStatement();
         int customerId = USER_INTERFACE.enterInteger("customer ID", 1, 100);
-        customerId = ResultClass.checkIfIdExistst("customer", customerId, "Id");
+        customerId = ResultClass.idMatches("customer", customerId, "Id");
 
         PreparedStatement statement = sqlStatement.getConnection().prepareStatement("DELETE FROM customer WHERE id = ?");
         statement.setInt(1, customerId);
@@ -113,7 +124,7 @@ public class Management implements Serializable {
     public void checkOutWithBill(int customerID) throws SQLException, IOException, ClassNotFoundException {
         sqlStatement = Run.getSqlStatement();
 
-        customerID = ResultClass.checkIfIdExistst("customer", customerID, "id");
+        customerID = ResultClass.idMatches("customer", customerID, "id");
 
         PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking SET checkOutDate = CURRENT_TIMESTAMP, roomavailable = true, customer_id = null WHERE customer_id = ? ;");
 
@@ -160,22 +171,22 @@ public class Management implements Serializable {
         while (loop) {
 
             String query = ("SELECT * FROM availableRooms WHERE roomnumber = " + roomChoice + ";");
-            int roomsAvailable = ResultClass.ifInputMatches(sqlStatement, query, "roomNumber");
+            boolean roomsAvailable = ResultClass.ifInputMatches(sqlStatement, query, "roomNumber");
 
-            if ((roomChoice == roomsAvailable)) {
+            if (roomsAvailable) {
                 roomDetails(roomChoice);
                 if (USER_INTERFACE.confirm("Would you like to book this room?")) {
 
                     int numberOfNights = USER_INTERFACE.enterInteger("number of nights to book", 1, 14);
 
                     int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
-                    customerID = ResultClass.checkIfIdExistst("customer", customerID, "id");
+                    customerID = ResultClass.idMatches("customer", customerID, "id");
 
                     query = "SELECT * FROM roombooking WHERE customer_id = " + customerID + " AND roomavailable = 0;";
 
-                    int customerID2 = ResultClass.ifInputMatches(sqlStatement, query, "customer_id");
+                    boolean allreadyHaveARoom = ResultClass.ifInputMatches(sqlStatement, query, "customer_id");
 
-                    if ((customerID2 == customerID)) {
+                    if (allreadyHaveARoom) {
                         System.out.println("You already have a booked room, do you want to check out?");
                         if (USER_INTERFACE.confirm("Would you like to book this room? (Y/N)")) {
                             checkOutWithBill(customerID);
@@ -190,7 +201,7 @@ public class Management implements Serializable {
 
                         System.out.println("The room is now booked!:");
 
-                        ResultClass.setResult(sqlStatement, "bookedroom", customerID);
+                        ResultClass.setResult(sqlStatement, "bookedroom", "customer_id", customerID);
 
                         listAllFromTable();
                         System.out.println();
