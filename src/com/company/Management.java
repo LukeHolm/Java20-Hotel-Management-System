@@ -1,8 +1,5 @@
 package com.company;
 
-import com.mysql.cj.x.protobuf.MysqlxPrepare;
-
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
@@ -29,7 +26,7 @@ public class Management implements Serializable {
 
         int customerID = ResultClass.getCustomerId(sqlStatement, fullName);
 
-        System.out.println(fullName + " successfully registered with cusmer Id: " + customerID);
+        System.out.println(fullName + " successfully registered with customer Id: " + customerID);
         System.out.println();
 
         List<Transaction> transactions = new ArrayList<>();
@@ -314,9 +311,6 @@ public class Management implements Serializable {
             String createRoomNumbers = "INSERT INTO roombooking (roomnumber) VALUES (" + i + ");";
             ResultClass.setupResult(sqlStatement, createRoomNumbers);
         }
-
-
-
 
     }
 }

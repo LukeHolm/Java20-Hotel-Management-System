@@ -13,7 +13,7 @@ public class Run {
     private static final String url = "jdbc:mysql://localhost:3306/hotel_booking_system?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     private static final String user = "root";
     //#region password
-    private static final String password = "";
+    private static final String password = "Flowright_0525";
     //endregion
     private static boolean exitProgram = false;
     private static boolean exitLoop = false;
@@ -101,7 +101,7 @@ public class Run {
     }
 
     public static void createSqlStatement() throws SQLException {
-        System.out.println("Anslutningen lyckades!");
+        System.out.println("Anslutningen lyckades!\n");
         sqlStatement = connection.createStatement();
     }
 }
