@@ -1,5 +1,5 @@
 CREATE DATABASE hotel_booking_system;
--- DROP DATABASE hotel_booking_system;
+DROP DATABASE hotel_booking_system;
 
 USE hotel_booking_system;
 

@@ -1,6 +1,7 @@
 package com.company;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 
 public class UserInterface {
     private UserInputHandler userInput = new UserInputHandler();
@@ -22,9 +23,10 @@ public class UserInterface {
         System.out.println("4. Booking or upgrading room");
         System.out.println("5. Ordering food for specific room");
         System.out.println("6. Customer check out and showing bill");
+        System.out.println("7. Setup/Factory Reset");
         System.out.println("0. Exit admin view");
 
-        return userInput.getIntFromUser(0,6);
+        return userInput.getIntFromUser(0,7);
     }
 
     public int customerChoice() {
