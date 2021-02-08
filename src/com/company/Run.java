@@ -13,7 +13,7 @@ public class Run {
     private static final String url = "jdbc:mysql://localhost:3306/hotel_booking_system?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     private static final String user = "root";
     //#region password
-    private static final String password = "Flowright_0525";
+    private static final String password = "";
     //endregion
     private static boolean exitProgram = false;
     private static boolean exitLoop = false;
