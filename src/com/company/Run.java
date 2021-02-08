@@ -1,26 +1,35 @@
 package com.company;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class Run {
     private static final UserInterface USER_INTERFACE = new UserInterface();
     private final static Management MANAGEMENT = new Management();
     private static Statement sqlStatement = null;
-    private static final String url = "jdbc:mysql://localhost:3306/hotel_booking_system?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-    private static final String user = "root";
+    //private static final String url = "jdbc:mysql://localhost:3306/hotel_booking_system?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     //#region password
     private static final String password = "Flowright_0525";
     //endregion
+    private static final String jdbcDriver = "com.mysql.cj.jdbc.Driver";
+    private static final String dbAdress = "jdbc:mysql://localhost:3306/";
+    private static final String dbName = "hotel_booking_system";
+    private static final String timezone = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+    private static final String userName = "root";
+    private static Connection connection;
     private static boolean exitProgram = false;
     private static boolean exitLoop = false;
-    private static Connection connection;
+
 
     public void Program() throws SQLException {
-        connection = DriverManager.getConnection(url, user, password);
+        try {
+            Class.forName(jdbcDriver);
+            connection = DriverManager.getConnection(dbAdress+dbName+timezone, userName, password);
+        } catch (ClassNotFoundException e){
+            e.printStackTrace();
+        } catch (SQLException e) {
+            createDatabase();
+        }
         try {
             createSqlStatement();
             while (!exitProgram) {
@@ -117,5 +126,16 @@ public class Run {
     public static void createSqlStatement() throws SQLException {
         System.out.println("Anslutningen lyckades!\n");
         sqlStatement = connection.createStatement();
+    }
+
+    private void createDatabase() {
+        try {
+            Class.forName(jdbcDriver);
+            connection = DriverManager.getConnection(dbAdress + timezone, userName, password);
+            Statement s = connection.createStatement();
+            int createDatabase = s.executeUpdate("CREATE DATABASE " + dbName);
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

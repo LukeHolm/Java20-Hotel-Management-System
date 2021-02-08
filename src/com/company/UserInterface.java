@@ -40,7 +40,7 @@ public class UserInterface {
         return userInput.getIntFromUser(0,5);
     }
 
-    public int foodChoice() throws IOException {
+    public int foodChoice() {
         System.out.println("Please choose something from the menu");
         System.out.println();
         Food.listOfFood().forEach(System.out::println);
@@ -59,10 +59,9 @@ public class UserInterface {
         return userInput.getIntFromUser(0,4);
     }
 
-    public boolean confirm() {
-        System.out.println("Would you like to book this room? (Y/N)");
+    public boolean confirm(String question) {
+        System.out.println(question + " " + "(y/n)");
         String ans = userInput.getStringFromUser();
-
         return ans.equalsIgnoreCase("y");
     }
 
