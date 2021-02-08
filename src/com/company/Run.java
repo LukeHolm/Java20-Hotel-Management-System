@@ -13,7 +13,7 @@ public class Run {
     private static final String url = "jdbc:mysql://localhost:3306/hotel_booking_system?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     private static final String user = "root";
     //#region password
-    private static final String password = "";
+    private static final String password = "Jole0257!";
     //endregion
     private static boolean exitProgram = false;
     private static boolean exitLoop = false;
@@ -60,7 +60,12 @@ public class Run {
             case 1 -> MANAGEMENT.newCustomer();
             case 2 -> MANAGEMENT.searchCustomer();
             case 3 -> MANAGEMENT.deleteCustomer();
-            case 4 -> MANAGEMENT.bookRoom();
+            case 4 -> {
+                int roomChoice = USER_INTERFACE.roomChoice();
+                if (!(roomChoice == 0)) {
+                    MANAGEMENT.bookRoom(roomChoice);
+                }
+            }
             case 5 -> {
                 int foodChoice = USER_INTERFACE.foodChoice();
                 if (!(foodChoice == 0)) {
@@ -84,7 +89,13 @@ public class Run {
                 MANAGEMENT.roomDetails(roomChoice);
             }
             case 2 -> MANAGEMENT.roomAvailability();
-            case 3 -> MANAGEMENT.bookRoom();
+            case 3 -> {
+                int roomChoice = USER_INTERFACE.roomChoice();
+                if (!(roomChoice == 0)) {
+                    MANAGEMENT.bookRoom(roomChoice);
+                }
+            }
+
             case 4 -> {
                 int foodChoice = USER_INTERFACE.foodChoice();
                 if (!(foodChoice == 0)) {

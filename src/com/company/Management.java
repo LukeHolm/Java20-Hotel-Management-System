@@ -48,7 +48,7 @@ public class Management implements Serializable {
 
                 statement.executeQuery();
 
-                ResultClass.setResult(sqlStatement, "customer_id", customerId);
+                ResultClass.setResult(sqlStatement, "customer", customerId);
             }
             case 2 -> {
                 String firstName = USER_INTERFACE.enterValue("customer first name");
@@ -63,10 +63,9 @@ public class Management implements Serializable {
 
                 statement.executeQuery();
 
-                ResultClass.setResult(sqlStatement,  "customer_id", customerId);
+                ResultClass.setResult(sqlStatement, "customer", customerId);
             }
         }
-
         listAllFromTable();
         System.out.println();
     }
@@ -99,7 +98,7 @@ public class Management implements Serializable {
         System.out.println("Order History:");
         foodOrder.stream().filter(s -> s instanceof Food)
                 .map(s -> (Food) s)
-                .map(Food::getNameOfTransaction)
+                .map(s -> s.getNameOfTransaction() + " -" + s.getPrice() + " SEK")
                 .forEach(System.out::println);
         System.out.println();
         System.out.println("Total ammount:");
@@ -154,12 +153,11 @@ public class Management implements Serializable {
         System.out.println();
     }
 
-    public <T> void bookRoom() throws SQLException, IOException, ClassNotFoundException {
+    public <T> void bookRoom(int roomChoice) throws SQLException, IOException, ClassNotFoundException {
         sqlStatement = Run.getSqlStatement();
 
         boolean loop = true;
         while (loop) {
-            int roomChoice = USER_INTERFACE.roomChoice();
 
             String query = ("SELECT * FROM availableRooms WHERE roomnumber = " + roomChoice + ";");
             int roomsAvailable = ResultClass.ifInputMatches(sqlStatement, query, "roomNumber");
@@ -291,11 +289,9 @@ public class Management implements Serializable {
     }
 
     public void setup() throws SQLException, IOException {
-
         sqlStatement = Run.getSqlStatement();
         List<Room> newFile = Room.rooms();
         DataHandler.writeToFile(newFile, "Rooms.txt");
-
 
         //Creating database
         String dropDatabase = "DROP DATABASE hotel_booking_system;";
@@ -314,9 +310,6 @@ public class Management implements Serializable {
         String createDeluxeSingle = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (3, 850, 1, 'flat screen', 1);";
         String createDeluxeDouble = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (4, 1250, 1, 'flat screen', 1);";
 
-
-
-
         ResultClass.setupResult(sqlStatement, dropDatabase);
         ResultClass.setupResult(sqlStatement, createDatabase);
         ResultClass.setupResult(sqlStatement, useDatabase);
@@ -326,19 +319,15 @@ public class Management implements Serializable {
         ResultClass.setupResult(sqlStatement, createFoodOrderTable);
         ResultClass.setupResult(sqlStatement, createViewAvailableRooms);
         ResultClass.setupResult(sqlStatement, createViewBookedRooms);
-        ResultClass.setupResult(sqlStatement,createStandardSingle);
-        ResultClass.setupResult(sqlStatement,createStandardDouble);
-        ResultClass.setupResult(sqlStatement,createDeluxeSingle);
-        ResultClass.setupResult(sqlStatement,createDeluxeDouble);
+        ResultClass.setupResult(sqlStatement, createStandardSingle);
+        ResultClass.setupResult(sqlStatement, createStandardDouble);
+        ResultClass.setupResult(sqlStatement, createDeluxeSingle);
+        ResultClass.setupResult(sqlStatement, createDeluxeDouble);
 
         //Inserting rooms into booking system
         for (int i = 1; i < 5; i++) {
             String createRoomNumbers = "INSERT INTO roombooking (roomnumber) VALUES (" + i + ");";
             ResultClass.setupResult(sqlStatement, createRoomNumbers);
         }
-
-
-
-
     }
 }
