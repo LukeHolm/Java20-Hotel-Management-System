@@ -23,9 +23,9 @@ public class Run {
         try {
             createSqlStatement();
             while (!exitProgram) {
-            int selection = USER_INTERFACE.adminOrCustomerChoice();
-            adminOrCustomer(selection);
-        }
+                int selection = USER_INTERFACE.adminOrCustomerChoice();
+                adminOrCustomer(selection);
+            }
             System.out.println("Thanks and bye!");
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -63,7 +63,7 @@ public class Run {
             case 5 -> {
                 int foodChoice = USER_INTERFACE.foodChoice();
                 if (!(foodChoice == 0)) {
-                    MANAGEMENT.foodOrder2(foodChoice);
+                    MANAGEMENT.foodOrder(foodChoice);
                 }
             }
             case 6 -> {
@@ -77,13 +77,16 @@ public class Run {
 
     public void customerView(int selection) throws SQLException, IOException, ClassNotFoundException {
         switch (selection) {
-            case 1 -> MANAGEMENT.roomDetails();
+            case 1 -> {
+                int roomChoice = USER_INTERFACE.roomChoice();
+                MANAGEMENT.roomDetails(roomChoice);
+            }
             case 2 -> MANAGEMENT.roomAvailability();
             case 3 -> MANAGEMENT.bookRoom();
             case 4 -> {
                 int foodChoice = USER_INTERFACE.foodChoice();
                 if (!(foodChoice == 0)) {
-                    MANAGEMENT.foodOrder2(foodChoice);
+                    MANAGEMENT.foodOrder(foodChoice);
                 }
             }
             case 5 -> {

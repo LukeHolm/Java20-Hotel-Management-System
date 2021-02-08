@@ -1,10 +1,12 @@
 package com.company;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Food implements Serializable, Transaction{
+    @Serial
     private static final long serialVersionUID = 5381669091941085221L;
     private int id;
     private String meal;
