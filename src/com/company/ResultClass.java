@@ -3,52 +3,29 @@ package com.company;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ResultClass {
 
     private static java.sql.ResultSet result;
     private static UserInputHandler userInput = new UserInputHandler();
 
-    public static java.sql.ResultSet getResult() {
-        return result;
+    public static void setResult(Statement sqlStatement, String tableName, int inputId) throws SQLException {
+        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE customer_id = " + inputId + ";");
     }
 
-    public static void setResult(Statement sqlStatement, String tableName, int ID) throws SQLException {
-        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE ID = " + ID + ";");
-    }
-
-    public static void setBookedRoomResult(Statement sqlStatement, String tableName, int ID) throws SQLException {
-        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + " WHERE customer_ID = " + ID + ";");
+    public static void setAvailableRoomsResult(Statement sqlStatement, String tableName) throws SQLException {
+        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + ";");
     }
 
     public static int getCustomerId(Statement sqlStatement, String fullName) throws SQLException {
         String query = "SELECT * FROM customer WHERE customer_name LIKE '" + fullName + "';";
         result = sqlStatement.executeQuery(query);
-        List<Integer> customerFoodOrder = new ArrayList<>();
-
-        int ID = 0;
-        while (result.next()) {
-            ID = result.getInt("id");
-            customerFoodOrder.add(ID);
-        }
-        return ID;
-    }
-
-    public static int searchCustomerByName(Statement sqlStatement, String fullName) throws SQLException {
-        String query = "SELECT * FROM customer WHERE customer_name LIKE '" + fullName + "';";
-        result = sqlStatement.executeQuery(query);
 
         int ID = 0;
         while (result.next()) {
             ID = result.getInt("id");
         }
         return ID;
-    }
-
-    public static void setAvailableRoomsResult(Statement sqlStatement, String tableName) throws SQLException {
-        result = sqlStatement.executeQuery("SELECT * FROM " + tableName + ";");
     }
 
     public static int checkIfIdExistst(String tableName, int inputID, String columnName) throws SQLException {
@@ -71,16 +48,20 @@ public class ResultClass {
         }
     }
 
-    public static int checkIfCustomerHasARoom(Statement sqlStatement, int inputId) throws SQLException {
-        String query = "SELECT * FROM roombooking WHERE customer_id = " + inputId + " AND roomavailable = 0;";
+    public static int ifInputMatches(Statement sqlStatement, String query, String columnName) throws SQLException {
         result = sqlStatement.executeQuery(query);
 
         int ID = 0;
         while (result.next()) {
-            ID = result.getInt("customer_id");
+            ID = result.getInt(columnName);
         }
         return ID;
     }
+
+    public static java.sql.ResultSet getResult() {
+        return result;
+    }
+
     public static void setupResult(Statement sqlStatement, String query) throws SQLException {
         int result2 = sqlStatement.executeUpdate(query);
     }

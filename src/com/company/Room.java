@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Room implements Serializable, Transaction{
+    @Serial
     private static final long serialVersionUID = 6584851985744000754L;
     int typeOfRoom;
     String roomName;

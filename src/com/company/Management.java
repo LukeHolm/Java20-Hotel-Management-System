@@ -54,7 +54,9 @@ public class Management implements Serializable {
                 String firstName = USER_INTERFACE.enterValue("customer first name");
                 String lastName = USER_INTERFACE.enterValue("customer last name");
                 String fullName = firstName + " " + lastName;
-                int customerId = ResultClass.searchCustomerByName(sqlStatement, fullName);
+
+                String query = "SELECT * FROM customer WHERE customer_name LIKE '" + fullName + "';";
+                int customerId = ResultClass.ifInputMatches(sqlStatement, query, "id");
 
                 PreparedStatement statement = sqlStatement.getConnection().prepareStatement("SELECT * FROM CUSTOMER WHERE ID = ? ");
                 statement.setInt(1, customerId);
@@ -64,7 +66,6 @@ public class Management implements Serializable {
                 ResultClass.setResult(sqlStatement, "customer", customerId);
             }
         }
-
         listAllFromTable();
         System.out.println();
     }
@@ -97,7 +98,7 @@ public class Management implements Serializable {
         System.out.println("Order History:");
         foodOrder.stream().filter(s -> s instanceof Food)
                 .map(s -> (Food) s)
-                .map(Food::getNameOfTransaction)
+                .map(s -> s.getNameOfTransaction() + " -" + s.getPrice() + " SEK")
                 .forEach(System.out::println);
         System.out.println();
         System.out.println("Total ammount:");
@@ -125,10 +126,8 @@ public class Management implements Serializable {
         System.out.println();
     }
 
-    public int roomDetails() throws IOException, ClassNotFoundException {
+    public int roomDetails(int roomChoice) throws IOException, ClassNotFoundException {
         sqlStatement = Run.getSqlStatement();
-
-        int roomChoice = USER_INTERFACE.roomChoice();
 
         List<Room> rooms = DataHandler.readFromFile("Rooms.txt");
         System.out.println();
@@ -154,45 +153,61 @@ public class Management implements Serializable {
         System.out.println();
     }
 
-    public <T> void bookRoom() throws SQLException, IOException, ClassNotFoundException {
+    public <T> void bookRoom(int roomChoice) throws SQLException, IOException, ClassNotFoundException {
         sqlStatement = Run.getSqlStatement();
 
-        int roomChoice = roomDetails();
+        boolean loop = true;
+        while (loop) {
 
-        if (USER_INTERFACE.confirm()) {
+            String query = ("SELECT * FROM availableRooms WHERE roomnumber = " + roomChoice + ";");
+            int roomsAvailable = ResultClass.ifInputMatches(sqlStatement, query, "roomNumber");
 
-            int numberOfNights = USER_INTERFACE.enterInteger("number of nights to book", 1, 14);
-
-            int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
-            customerID = ResultClass.checkIfIdExistst("customer", customerID, "id");
-            int customerID2 = ResultClass.checkIfCustomerHasARoom(sqlStatement, customerID);
-            if ((customerID2 == customerID)) {
-                System.out.println("You already have a booked room, do you want to check out?");
+            if ((roomChoice == roomsAvailable)) {
+                roomDetails(roomChoice);
                 if (USER_INTERFACE.confirm()) {
-                    checkOutWithBill(customerID);
+
+                    int numberOfNights = USER_INTERFACE.enterInteger("number of nights to book", 1, 14);
+
+                    int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
+                    customerID = ResultClass.checkIfIdExistst("customer", customerID, "id");
+
+                    query = "SELECT * FROM roombooking WHERE customer_id = " + customerID + " AND roomavailable = 0;";
+
+                    int customerID2 = ResultClass.ifInputMatches(sqlStatement, query, "customer_id");
+
+                    if ((customerID2 == customerID)) {
+                        System.out.println("You allready have a booked room, do you want to check out?");
+                        if (USER_INTERFACE.confirm()) {
+                            checkOutWithBill(customerID);
+                        }
+                    } else {
+                        PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking " +
+                                "SET customer_id = ?, checkindate = CURRENT_TIMESTAMP, roomavailable = false, " +
+                                "checkOutDate = DATE_ADD(checkindate,INTERVAL " + numberOfNights + " DAY) WHERE roomnumber = " + roomChoice + ";");
+                        statement.setInt(1, customerID);
+
+                        statement.executeUpdate();
+
+                        System.out.println("The room is now booked!:");
+
+                        ResultClass.setResult(sqlStatement, "bookedroom", customerID);
+
+                        listAllFromTable();
+                        System.out.println();
+
+                        List<T> transactions = new ArrayList<>();
+
+                        Room room = Room.rooms().get(roomChoice - 1);
+                        room.setQuantity(numberOfNights);
+                        transactions.add((T) room);
+
+                        DataHandler.writeToFile(transactions, customerID + TOTAL_BILL);
+
+                        loop = false;
+                    }
                 }
             } else {
-                PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking " +
-                        "SET customer_id = ?, checkindate = CURRENT_TIMESTAMP, roomavailable = false, " +
-                        "checkOutDate = DATE_ADD(checkindate,INTERVAL " + numberOfNights + " DAY) WHERE roomnumber = " + roomChoice + ";");
-                statement.setInt(1, customerID);
-
-                statement.executeUpdate();
-
-                System.out.println("The room is now booked!:");
-
-                ResultClass.setBookedRoomResult(sqlStatement, "bookedroom", customerID);
-
-                listAllFromTable();
-                System.out.println();
-
-                List<T> transactions = new ArrayList<>();
-
-                Room room = Room.rooms().get(roomChoice - 1);
-                room.setQuantity(numberOfNights);
-                transactions.add((T) room);
-
-                DataHandler.writeToFile(transactions, customerID + TOTAL_BILL);
+                System.out.println("That room is unfortunate not available, please choose another room");
             }
         }
     }
@@ -247,30 +262,36 @@ public class Management implements Serializable {
                 .mapToInt(s -> s.getPrice() * s.getQuantity()).summaryStatistics().getSum());
         System.out.println();
 
-        System.out.println("......ROOMSERVICE......");
-        transactions.stream()
+        long roomServiceCost = transactions.stream()
                 .filter(s -> s instanceof Food)
                 .map(s -> (Food) s)
-                .map(s -> "- " + s.getNameOfTransaction() + " " + s.getPrice() + " SEK")
-                .forEach(System.out::println);
+                .mapToInt(s -> s.getPrice()).summaryStatistics().getSum();
 
-        long foodOrder = transactions.stream()
-                .filter(s -> s instanceof Food)
-                .map(s -> (Food) s)
-                .mapToInt(Food::getPrice).summaryStatistics().getSum();
+        if (roomServiceCost > 0) {
+            System.out.println("......ROOMSERVICE......");
 
-        System.out.println();
-        System.out.println("\t" + ((totalRoomCost + foodOrder)) + " SEK");
-        System.out.println();
+            transactions.stream()
+                    .filter(s -> s instanceof Food)
+                    .map(s -> (Food) s)
+                    .map(s -> "- " + s.getNameOfTransaction() + " " + s.getPrice() + " SEK")
+                    .forEach(System.out::println);
+
+            long foodOrder = transactions.stream()
+                    .filter(s -> s instanceof Food)
+                    .map(s -> (Food) s)
+                    .mapToInt(Food::getPrice).summaryStatistics().getSum();
+
+            System.out.println();
+            System.out.println("\t" + ((totalRoomCost + foodOrder)) + " SEK");
+            System.out.println();
+        }
         System.out.println("Thanks for visiting us, welcome back!");
     }
 
     public void setup() throws SQLException, IOException {
-
         sqlStatement = Run.getSqlStatement();
         List<Room> newFile = Room.rooms();
         DataHandler.writeToFile(newFile, "Rooms.txt");
-
 
         //Creating database
         String dropDatabase = "DROP DATABASE hotel_booking_system;";
@@ -289,9 +310,6 @@ public class Management implements Serializable {
         String createDeluxeSingle = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (3, 850, 1, 'flat screen', 1);";
         String createDeluxeDouble = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (4, 1250, 1, 'flat screen', 1);";
 
-
-
-
         ResultClass.setupResult(sqlStatement, dropDatabase);
         ResultClass.setupResult(sqlStatement, createDatabase);
         ResultClass.setupResult(sqlStatement, useDatabase);
@@ -301,16 +319,15 @@ public class Management implements Serializable {
         ResultClass.setupResult(sqlStatement, createFoodOrderTable);
         ResultClass.setupResult(sqlStatement, createViewAvailableRooms);
         ResultClass.setupResult(sqlStatement, createViewBookedRooms);
-        ResultClass.setupResult(sqlStatement,createStandardSingle);
-        ResultClass.setupResult(sqlStatement,createStandardDouble);
-        ResultClass.setupResult(sqlStatement,createDeluxeSingle);
-        ResultClass.setupResult(sqlStatement,createDeluxeDouble);
+        ResultClass.setupResult(sqlStatement, createStandardSingle);
+        ResultClass.setupResult(sqlStatement, createStandardDouble);
+        ResultClass.setupResult(sqlStatement, createDeluxeSingle);
+        ResultClass.setupResult(sqlStatement, createDeluxeDouble);
 
         //Inserting rooms into booking system
         for (int i = 1; i < 5; i++) {
             String createRoomNumbers = "INSERT INTO roombooking (roomnumber) VALUES (" + i + ");";
             ResultClass.setupResult(sqlStatement, createRoomNumbers);
         }
-
     }
 }
