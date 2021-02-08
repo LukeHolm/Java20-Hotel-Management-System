@@ -9,7 +9,7 @@ public class Run {
     private static Statement sqlStatement = null;
     //private static final String url = "jdbc:mysql://localhost:3306/hotel_booking_system?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     //#region password
-    private static final String password = "Flowright_0525";
+    private static final String password = "";
     //endregion
     private static final String jdbcDriver = "com.mysql.cj.jdbc.Driver";
     private static final String dbAdress = "jdbc:mysql://localhost:3306/";
