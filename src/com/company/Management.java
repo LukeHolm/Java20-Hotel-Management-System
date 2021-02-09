@@ -132,7 +132,6 @@ public class Management implements Serializable {
 
         statement.executeUpdate();
 
-        System.out.println("Bill for customer with id " + customerID + ":");
         getBill(customerID);
         System.out.println();
     }
@@ -187,8 +186,7 @@ public class Management implements Serializable {
                     boolean allreadyHaveARoom = ResultClass.ifInputMatches(sqlStatement, query, "customer_id");
 
                     if (allreadyHaveARoom) {
-                        System.out.println("You already have a booked room, do you want to check out?");
-                        if (USER_INTERFACE.confirm("Would you like to book this room? (Y/N)")) {
+                        if (USER_INTERFACE.confirm("You already have a booked room, do you want to check out?")) {
                             checkOutWithBill(customerID);
                         }
                     } else {
@@ -218,7 +216,9 @@ public class Management implements Serializable {
                     }
                 }
             } else {
+                loop = false;
                 System.out.println("That room is unfortunate not available, please choose another room");
+                System.out.println();
             }
         }
     }
@@ -258,13 +258,14 @@ public class Management implements Serializable {
         DataHandler.writeToFile(transactions, customerId + TOTAL_BILL);
 
         transactions = DataHandler.readFromFile(customerId + TOTAL_BILL);
+        System.out.println("Bill for customer with id " + customerId + ":");
         System.out.println();
 
         System.out.println("......ROOM COST......");
         transactions.stream()
                 .filter(s -> s instanceof Room)
                 .map(s -> (Room) s)
-                .map(s -> "- " + s.getNameOfTransaction() + " " + s.getPrice() + " SEK - " + s.getQuantity() + " nights\n\t" + s.getPrice() * s.getQuantity() + " SEK")
+                .map(s -> "- " + s.getNameOfTransaction() + " " + s.getPrice() + " SEK - " + s.getQuantity() + " nights\n\n\t-" + s.getPrice() * s.getQuantity() + " SEK")
                 .forEach(System.out::println);
 
         long totalRoomCost = (transactions.stream()
@@ -293,7 +294,7 @@ public class Management implements Serializable {
                     .mapToInt(Food::getPrice).summaryStatistics().getSum();
 
             System.out.println();
-            System.out.println("\t" + ((totalRoomCost + foodOrder)) + " SEK");
+            System.out.println("\t-" + ((totalRoomCost + foodOrder)) + " SEK");
             System.out.println();
         }
         System.out.println("Thanks for visiting us, welcome back!");
@@ -311,18 +312,17 @@ public class Management implements Serializable {
             String createDatabase = "CREATE DATABASE hotel_booking_system;";
             String useDatabase = "USE hotel_booking_system";
             String createCustomerTable = "CREATE TABLE customer (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, customer_name VARCHAR(50) NOT NULL, contact_number VARCHAR(50));";
-            String createRoomTable = "CREATE TABLE room (roomNumber INT NOT NULL PRIMARY KEY AUTO_INCREMENT, typeOfRoom INT NOT NULL, room_Description VARCHAR(250), price_per_night INT NOT NULL, wifi BIT DEFAULT 1, tv VARCHAR(50) NOT NULL, aircondition BIT NOT NULL, smoking BIT DEFAULT 0);";
+            String createRoomTable = "CREATE TABLE room (roomNumber INT NOT NULL PRIMARY KEY AUTO_INCREMENT, typeOfRoom INT NOT NULL, room_Size VARCHAR(100), price_per_night INT NOT NULL);";
             String createRoomBookingTable = "CREATE TABLE roomBooking (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, roomNumber INT NOT NULL, customer_id INT DEFAULT NULL, roomAvailable BIT DEFAULT 1, checkInDate DATETIME DEFAULT NULL, checkOutDate DATETIME DEFAULT NULL, FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE,FOREIGN KEY (roomnumber) REFERENCES room(roomNumber) ON DELETE CASCADE);";
-            String createFoodOrderTable = "CREATE TABLE foodOrder (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, food_id INT NOT NULL, customer_id INT, FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE);";
-            String createViewAvailableRooms = "CREATE VIEW availableRooms AS SELECT DISTINCT room.roomNumber, typeOfRoom FROM room JOIN roomBooking ON roomBooking.roomNumber = room.roomNumber WHERE roomAvailable = 1;";
+            String createViewAvailableRooms = "CREATE VIEW availableRooms AS SELECT DISTINCT room.roomNumber, room_size FROM room JOIN roomBooking ON roomBooking.roomNumber = room.roomNumber WHERE roomAvailable = 1;";
             String createViewBookedRooms = "CREATE VIEW bookedroom AS SELECT DISTINCT customer_id, typeOfroom, price_per_night FROM room JOIN roombooking ON room.roomnumber = roombooking.roomnumber;";
             //#endregion
 
             //#region Creating rooms
-            String createStandardSingle = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition) VALUES (1, 450, 0, 'big old tv', 1);";
-            String createStandardDouble = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (2, 600, 0, 'big old tv', 1)";
-            String createDeluxeSingle = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (3, 850, 1, 'flat screen', 1);";
-            String createDeluxeDouble = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (4, 1250, 1, 'flat screen', 1);";
+            String createStandardSingle = "INSERT INTO room (typeOfRoom, room_size, price_per_night) VALUES (1, 'Standard single', 450);";
+            String createStandardDouble = "INSERT INTO room (typeOfRoom, room_size, price_per_night) VALUES (2, 'Standard dobule', 600)";
+            String createDeluxeSingle = "INSERT INTO room (typeOfRoom, room_size, price_per_night) VALUES (3, 'Deluxe single', 850);";
+            String createDeluxeDouble = "INSERT INTO room (typeOfRoom, room_size, price_per_night) VALUES (4, 'Deluxe single', 1250);";
             //#endregion
 
             //#region Sending queries to mySql
@@ -332,7 +332,6 @@ public class Management implements Serializable {
             ResultClass.setupResult(sqlStatement, createCustomerTable);
             ResultClass.setupResult(sqlStatement, createRoomTable);
             ResultClass.setupResult(sqlStatement, createRoomBookingTable);
-            ResultClass.setupResult(sqlStatement, createFoodOrderTable);
             ResultClass.setupResult(sqlStatement, createViewAvailableRooms);
             ResultClass.setupResult(sqlStatement, createViewBookedRooms);
             ResultClass.setupResult(sqlStatement, createStandardSingle);
