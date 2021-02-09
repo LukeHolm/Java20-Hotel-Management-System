@@ -311,18 +311,18 @@ public class Management implements Serializable {
             String createDatabase = "CREATE DATABASE hotel_booking_system;";
             String useDatabase = "USE hotel_booking_system";
             String createCustomerTable = "CREATE TABLE customer (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, customer_name VARCHAR(50) NOT NULL, contact_number VARCHAR(50));";
-            String createRoomTable = "CREATE TABLE room (roomNumber INT NOT NULL PRIMARY KEY AUTO_INCREMENT, typeOfRoom INT NOT NULL, room_Description VARCHAR(250), price_per_night INT NOT NULL, wifi BIT DEFAULT 1, tv VARCHAR(50) NOT NULL, aircondition BIT NOT NULL, smoking BIT DEFAULT 0);";
+            String createRoomTable = "CREATE TABLE room (roomNumber INT NOT NULL PRIMARY KEY AUTO_INCREMENT, typeOfRoom INT NOT NULL, room_Size VARCHAR(100), price_per_night INT NOT NULL, wifi BIT DEFAULT 1, tv VARCHAR(50) NOT NULL, aircondition BIT NOT NULL, smoking BIT DEFAULT 0);";
             String createRoomBookingTable = "CREATE TABLE roomBooking (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, roomNumber INT NOT NULL, customer_id INT DEFAULT NULL, roomAvailable BIT DEFAULT 1, checkInDate DATETIME DEFAULT NULL, checkOutDate DATETIME DEFAULT NULL, FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE,FOREIGN KEY (roomnumber) REFERENCES room(roomNumber) ON DELETE CASCADE);";
             String createFoodOrderTable = "CREATE TABLE foodOrder (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, food_id INT NOT NULL, customer_id INT, FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE);";
-            String createViewAvailableRooms = "CREATE VIEW availableRooms AS SELECT DISTINCT room.roomNumber, typeOfRoom FROM room JOIN roomBooking ON roomBooking.roomNumber = room.roomNumber WHERE roomAvailable = 1;";
+            String createViewAvailableRooms = "CREATE VIEW availableRooms AS SELECT DISTINCT room.roomNumber, room_Size FROM room JOIN roomBooking ON roomBooking.roomNumber = room.roomNumber WHERE roomAvailable = 1;";
             String createViewBookedRooms = "CREATE VIEW bookedroom AS SELECT DISTINCT customer_id, typeOfroom, price_per_night FROM room JOIN roombooking ON room.roomnumber = roombooking.roomnumber;";
             //#endregion
 
             //#region Creating rooms
-            String createStandardSingle = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition) VALUES (1, 450, 0, 'big old tv', 1);";
-            String createStandardDouble = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (2, 600, 0, 'big old tv', 1)";
-            String createDeluxeSingle = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (3, 850, 1, 'flat screen', 1);";
-            String createDeluxeDouble = "INSERT INTO room (typeOfRoom, price_per_night, wifi, tv, aircondition)VALUES (4, 1250, 1, 'flat screen', 1);";
+            String createStandardSingle = "INSERT INTO room (typeOfRoom,room_Size, price_per_night, wifi, tv, aircondition) VALUES (1,'Standard Single', 450, 0, 'big old tv', 1);";
+            String createStandardDouble = "INSERT INTO room (typeOfRoom,room_Size, price_per_night, wifi, tv, aircondition)VALUES (2,'Standard Double', 600, 0, 'big old tv', 1)";
+            String createDeluxeSingle = "INSERT INTO room (typeOfRoom,room_Size, price_per_night, wifi, tv, aircondition)VALUES (3,'Deluxe Single', 850, 1, 'flat screen', 1);";
+            String createDeluxeDouble = "INSERT INTO room (typeOfRoom,room_Size, price_per_night, wifi, tv, aircondition)VALUES (4,'Deluxe Double', 1250, 1, 'flat screen', 1);";
             //#endregion
 
             //#region Sending queries to mySql
