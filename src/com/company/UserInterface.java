@@ -1,8 +1,5 @@
 package com.company;
 
-import java.io.IOException;
-import java.sql.SQLOutput;
-
 public class UserInterface {
     private UserInputHandler userInput = new UserInputHandler();
 

@@ -9,6 +9,8 @@ public class Management implements Serializable {
     private static final UserInterface USER_INTERFACE = new UserInterface();
     private static Statement sqlStatement;
     private final static String TOTAL_BILL = "_bill.txt";
+    private static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_RESET = "\u001B[0m";
 
     public void newCustomer() throws SQLException, IOException {
         sqlStatement = Run.getSqlStatement();
@@ -163,62 +165,66 @@ public class Management implements Serializable {
         System.out.println();
     }
 
-    public <T> void bookRoom(int roomChoice) throws SQLException, IOException, ClassNotFoundException {
+    public <T> void bookRoom() throws SQLException, IOException, ClassNotFoundException {
         sqlStatement = Run.getSqlStatement();
 
         boolean loop = true;
         while (loop) {
+            int roomChoice = USER_INTERFACE.roomChoice();
 
-            String query = ("SELECT * FROM availableRooms WHERE roomnumber = " + roomChoice + ";");
-            boolean roomsAvailable = ResultClass.ifInputMatches(sqlStatement, query, "roomNumber");
+            if (roomChoice > 0) {
+                String query = ("SELECT * FROM availableRooms WHERE roomnumber = " + roomChoice + ";");
+                boolean roomsAvailable = ResultClass.ifInputMatches(sqlStatement, query, "roomNumber");
 
-            if (roomsAvailable) {
-                roomDetails(roomChoice);
-                if (USER_INTERFACE.confirm("Would you like to book this room?")) {
+                if (roomsAvailable) {
+                    roomDetails(roomChoice);
+                    if (USER_INTERFACE.confirm("Would you like to book this room?")) {
 
-                    int numberOfNights = USER_INTERFACE.enterInteger("number of nights to book", 1, 14);
+                        int numberOfNights = USER_INTERFACE.enterInteger("number of nights to book", 1, 14);
 
-                    int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
-                    customerID = ResultClass.idMatches("customer", customerID, "id");
+                        int customerID = USER_INTERFACE.enterInteger("customer id", 1, 100);
+                        customerID = ResultClass.idMatches("customer", customerID, "id");
 
-                    query = "SELECT * FROM roombooking WHERE customer_id = " + customerID + " AND roomavailable = 0;";
+                        query = "SELECT * FROM roombooking WHERE customer_id = " + customerID + " AND roomavailable = 0;";
 
-                    boolean allreadyHaveARoom = ResultClass.ifInputMatches(sqlStatement, query, "customer_id");
+                        boolean allreadyHaveARoom = ResultClass.ifInputMatches(sqlStatement, query, "customer_id");
 
-                    if (allreadyHaveARoom) {
-                        if (USER_INTERFACE.confirm("You already have a booked room, do you want to check out?")) {
-                            checkOutWithBill(customerID);
+                        if (allreadyHaveARoom) {
+                            if (USER_INTERFACE.confirm("You already have a booked room, do you want to check out?")) {
+                                checkOutWithBill(customerID);
+                            }
+                        } else {
+                            PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking " +
+                                    "SET customer_id = ?, checkindate = CURRENT_TIMESTAMP, roomavailable = false, " +
+                                    "checkOutDate = DATE_ADD(checkindate,INTERVAL " + numberOfNights + " DAY) WHERE roomnumber = " + roomChoice + ";");
+                            statement.setInt(1, customerID);
+
+                            statement.executeUpdate();
+
+                            System.out.println("The room is now booked!:");
+
+                            ResultClass.setResult(sqlStatement, "bookedroom", "customer_id", customerID);
+
+                            listAllFromTable();
+                            System.out.println();
+
+                            List<T> transactions = new ArrayList<>();
+
+                            Room room = Room.rooms().get(roomChoice - 1);
+                            room.setQuantity(numberOfNights);
+                            transactions.add((T) room);
+
+                            DataHandler.writeToFile(transactions, customerID + TOTAL_BILL);
+
+                            loop = false;
                         }
-                    } else {
-                        PreparedStatement statement = sqlStatement.getConnection().prepareStatement("UPDATE roombooking " +
-                                "SET customer_id = ?, checkindate = CURRENT_TIMESTAMP, roomavailable = false, " +
-                                "checkOutDate = DATE_ADD(checkindate,INTERVAL " + numberOfNights + " DAY) WHERE roomnumber = " + roomChoice + ";");
-                        statement.setInt(1, customerID);
-
-                        statement.executeUpdate();
-
-                        System.out.println("The room is now booked!:");
-
-                        ResultClass.setResult(sqlStatement, "bookedroom", "customer_id", customerID);
-
-                        listAllFromTable();
-                        System.out.println();
-
-                        List<T> transactions = new ArrayList<>();
-
-                        Room room = Room.rooms().get(roomChoice - 1);
-                        room.setQuantity(numberOfNights);
-                        transactions.add((T) room);
-
-                        DataHandler.writeToFile(transactions, customerID + TOTAL_BILL);
-
-                        loop = false;
                     }
+                } else {
+                    System.out.println("That room is unfortunate not available, please choose another room");
+                    System.out.println();
                 }
             } else {
                 loop = false;
-                System.out.println("That room is unfortunate not available, please choose another room");
-                System.out.println();
             }
         }
     }
@@ -301,7 +307,7 @@ public class Management implements Serializable {
     }
 
     public void setup() throws SQLException, IOException {
-        if (USER_INTERFACE.confirm("Are you sure that you want to Factory Reset?")) {
+        if (USER_INTERFACE.confirm(ANSI_RED + "Are you sure that you want to Factory Reset?" + ANSI_RESET)) {
 
             sqlStatement = Run.getSqlStatement();
             List<Room> newFile = Room.rooms();
